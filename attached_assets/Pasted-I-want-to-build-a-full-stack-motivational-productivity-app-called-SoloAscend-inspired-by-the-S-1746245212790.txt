@@ -1,0 +1,84 @@
+I want to build a full-stack motivational productivity app called **SoloAscend** — inspired by the Solo Leveling system — that guides me to become a billionaire by the end of 2025.
+
+Use:
+
+- **Frontend**: React + Tailwind CSS (responsive + dark mode)
+- **Backend**: Supabase (auth, database, storage)
+- **Deployment**: Replit + Supabase
+- **Motivation Engine**: Use quotes and character voices from Solo Leveling
+- **AI Assistant**: Local logic module (NOT Rork) that suggests daily missions based on my energy, mood, and available time
+
+---
+
+📦 App Modules (Organize code by folders):
+
+1. **Auth Module**  
+   - Supabase Auth for login/sign-up  
+   - Protect routes for authenticated users  
+   - Show onboarding on first login
+
+2. **Mission Engine**  
+   - Store and fetch daily tasks from Supabase `missions` table  
+   - Allow users to complete, skip, or delay missions  
+   - Track task duration and mood logs
+
+3. **SoloAscend Assistant Module (No Rork)**  
+   - Input: time_available, energy_level (1–5), mood ("focused", "drained", "motivated")  
+   - Output: fetch suitable missions from Supabase based on logic like:  
+     ```
+     if (energy >= 4 && mood === 'focused') => hard tasks  
+     if (energy <= 2 || mood === 'drained') => easy tasks  
+     ```
+   - Use Supabase filters (`time_required <= input`, `difficulty`, etc.)  
+   - Fallback to default missions if no match  
+   - Handle errors/failures cleanly and show user-friendly messages
+
+4. **Progress Tracker**  
+   - Log completions in Supabase `progress` table  
+   - Show streaks, history, and graphs  
+   - Use local cache if offline, sync later
+
+5. **Motivation Engine**  
+   - Show random quotes from Supabase `quotes` table  
+   - Play `.mp3` audio from Supabase Storage linked to quotes  
+   - Schedule daily motivational triggers
+
+6. **Project Arena**  
+   - Manage long-term goals (CareerCopilot, Kids AI) as sub-projects  
+   - Allow tracking subtasks and deadlines  
+   - Sync with the mission engine
+
+7. **Settings Module**  
+   - Configure quote frequency, voice volume, system goals  
+   - Store preferences in Supabase `user_settings`
+
+---
+
+🛠️ Technical Notes:
+
+- Use `.env` for Supabase keys — do not hardcode  
+- Use modular React components, not monolithic files  
+- Apply loading states, error boundaries, and fallback content  
+- Make UI minimalist and themed around Solo Leveling (dark, aura, animated loading)
+
+---
+
+📁 Supabase Tables Required:
+- `missions(id, title, category, difficulty, time_required, project_id, description)`
+- `progress(user_id, mission_id, date, status, mood, energy_level)`
+- `quotes(id, text, character, audio_url)`
+- `user_settings(user_id, quote_frequency, voice_volume, preferred_focus_hours)`
+- `projects(id, name, description, start_date, end_date)`
+
+---
+
+✅ Deliverables:
+- A working React app with Supabase backend  
+- Modular folder structure  
+- Authenticated mission generation logic based on local rules  
+- Audio + motivational quote integration  
+- Project goal tracker  
+- Error-handled, production-ready frontend/backend code  
+- Optional: Dummy seed data
+
+Let me know if you want test audio files or sample quote data next.
