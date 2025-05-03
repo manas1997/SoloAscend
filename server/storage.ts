@@ -1,4 +1,6 @@
 import { users, type User, type InsertUser, missions, type Mission, type InsertMission, progress, type Progress, type InsertProgress, quotes, type Quote, type InsertQuote, user_settings, type UserSettings, type InsertUserSettings, projects, type Project, type InsertProject, project_tasks, type ProjectTask, type InsertProjectTask } from "@shared/schema";
+import session from "express-session";
+import createMemoryStore from "memorystore";
 
 export interface IStorage {
   // User operations
@@ -35,6 +37,9 @@ export interface IStorage {
   getProjectTask(id: number): Promise<ProjectTask | undefined>;
   getTasksByProjectId(projectId: number): Promise<ProjectTask[]>;
   createProjectTask(task: InsertProjectTask): Promise<ProjectTask>;
+
+  // Session store
+  sessionStore: session.Store;
 }
 
 export class MemStorage implements IStorage {
@@ -54,6 +59,8 @@ export class MemStorage implements IStorage {
   private projectIdCounter: number;
   private taskIdCounter: number;
 
+  public sessionStore: session.Store;
+  
   constructor() {
     this.users = new Map();
     this.missions = new Map();
@@ -70,6 +77,12 @@ export class MemStorage implements IStorage {
     this.settingsIdCounter = 1;
     this.projectIdCounter = 1;
     this.taskIdCounter = 1;
+    
+    // Create memory store for sessions
+    const MemoryStore = createMemoryStore(session);
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    });
     
     // Initialize with some sample quotes
     this.seedQuotes();

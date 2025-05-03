@@ -1,6 +1,4 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useAuth } from './AuthContext';
-import { supabase } from '@/lib/supabase';
 
 type Theme = 'dark' | 'light';
 
@@ -13,39 +11,14 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('dark');
-  const { user } = useAuth();
   
-  // Load theme preference from user settings on initial load
+  // Get theme from localStorage on initial load
   useEffect(() => {
-    async function loadThemePreference() {
-      if (!user) {
-        return;
-      }
-      
-      try {
-        const { data, error } = await supabase
-          .from('user_settings')
-          .select('theme')
-          .eq('user_id', user.id)
-          .single();
-        
-        if (error) {
-          if (error.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
-            console.error('Error loading theme preference:', error);
-          }
-          return;
-        }
-        
-        if (data?.theme) {
-          setThemeState(data.theme as Theme);
-        }
-      } catch (error) {
-        console.error('Error loading theme preference:', error);
-      }
+    const savedTheme = localStorage.getItem('theme') as Theme | null;
+    if (savedTheme && (savedTheme === 'dark' || savedTheme === 'light')) {
+      setThemeState(savedTheme);
     }
-    
-    loadThemePreference();
-  }, [user]);
+  }, []);
   
   // Apply theme to document
   useEffect(() => {
@@ -54,28 +27,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     root.classList.add(theme);
   }, [theme]);
   
-  // Save theme preference when it changes
-  const setTheme = async (newTheme: Theme) => {
+  // Save theme preference to localStorage
+  const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    
-    if (user) {
-      try {
-        const { error } = await supabase
-          .from('user_settings')
-          .upsert({
-            user_id: user.id,
-            theme: newTheme
-          })
-          .select()
-          .single();
-        
-        if (error) {
-          console.error('Error saving theme preference:', error);
-        }
-      } catch (error) {
-        console.error('Error saving theme preference:', error);
-      }
-    }
+    localStorage.setItem('theme', newTheme);
   };
   
   return (

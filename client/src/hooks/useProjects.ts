@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { getProjects, createProject as createProjectApi } from '@/lib/supabase';
 import type { Project, InsertProject } from '@shared/schema';
 import { useMemo } from 'react';

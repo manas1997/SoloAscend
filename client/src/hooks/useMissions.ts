@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { apiRequest } from '@/lib/queryClient';
 import { getMissions, createMission as createMissionApi, updateMissionStatus as updateMissionStatusApi } from '@/lib/supabase';
 import { generateMissions as generateMissionsUtil } from '@/lib/missionEngine';

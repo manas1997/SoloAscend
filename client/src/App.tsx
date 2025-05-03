@@ -6,61 +6,57 @@ import ProjectsPage from "@/pages/ProjectsPage";
 import ProgressPage from "@/pages/ProgressPage";
 import MotivationPage from "@/pages/MotivationPage";
 import SettingsPage from "@/pages/SettingsPage";
-import Auth from "@/pages/Auth";
-import { useAuth } from "@/context/AuthContext";
+import AuthPage from "@/pages/auth-page";
 import { MainLayout } from "./components/layout/MainLayout";
+import { ProtectedRoute } from "./lib/protected-route";
 
-function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
-  const { user, loading } = useAuth();
-  
-  if (loading) {
-    return <div className="flex h-screen items-center justify-center bg-background">
-      <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-    </div>;
-  }
-  
-  if (!user) {
-    window.location.href = "/auth";
-    return null;
-  }
-  
-  return <Component />;
-}
+// Wrap components with MainLayout
+const ProtectedDashboard = () => (
+  <MainLayout>
+    <Dashboard />
+  </MainLayout>
+);
+
+const ProtectedMissions = () => (
+  <MainLayout>
+    <MissionsPage />
+  </MainLayout>
+);
+
+const ProtectedProjects = () => (
+  <MainLayout>
+    <ProjectsPage />
+  </MainLayout>
+);
+
+const ProtectedProgress = () => (
+  <MainLayout>
+    <ProgressPage />
+  </MainLayout>
+);
+
+const ProtectedMotivation = () => (
+  <MainLayout>
+    <MotivationPage />
+  </MainLayout>
+);
+
+const ProtectedSettings = () => (
+  <MainLayout>
+    <SettingsPage />
+  </MainLayout>
+);
 
 function App() {
   return (
     <Switch>
-      <Route path="/auth" component={Auth} />
-      <Route path="/">
-        <MainLayout>
-          <ProtectedRoute component={Dashboard} />
-        </MainLayout>
-      </Route>
-      <Route path="/missions">
-        <MainLayout>
-          <ProtectedRoute component={MissionsPage} />
-        </MainLayout>
-      </Route>
-      <Route path="/projects">
-        <MainLayout>
-          <ProtectedRoute component={ProjectsPage} />
-        </MainLayout>
-      </Route>
-      <Route path="/progress">
-        <MainLayout>
-          <ProtectedRoute component={ProgressPage} />
-        </MainLayout>
-      </Route>
-      <Route path="/motivation">
-        <MainLayout>
-          <ProtectedRoute component={MotivationPage} />
-        </MainLayout>
-      </Route>
-      <Route path="/settings">
-        <MainLayout>
-          <ProtectedRoute component={SettingsPage} />
-        </MainLayout>
-      </Route>
+      <Route path="/auth" component={AuthPage} />
+      <ProtectedRoute path="/" component={ProtectedDashboard} />
+      <ProtectedRoute path="/missions" component={ProtectedMissions} />
+      <ProtectedRoute path="/projects" component={ProtectedProjects} />
+      <ProtectedRoute path="/progress" component={ProtectedProgress} />
+      <ProtectedRoute path="/motivation" component={ProtectedMotivation} />
+      <ProtectedRoute path="/settings" component={ProtectedSettings} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
@@ -11,8 +11,19 @@ import {
   insertProjectSchema,
   insertProjectTaskSchema
 } from "@shared/schema";
+import { setupAuth } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up authentication with Passport
+  setupAuth(app);
+
+  // Middleware to check if user is authenticated
+  const isAuthenticated = (req: Request, res: any, next: any) => {
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    res.status(401).json({ message: "Unauthorized" });
+  };
   // Users routes
   app.post("/api/users", async (req, res) => {
     try {

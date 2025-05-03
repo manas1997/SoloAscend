@@ -1,18 +1,18 @@
 import { AuthForm } from "@/components/auth/AuthForm";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 
 export default function Auth() {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   
   // Redirect to dashboard if user is already authenticated
   useEffect(() => {
-    if (user && !loading) {
+    if (user && !isLoading) {
       setLocation("/");
     }
-  }, [user, loading, setLocation]);
+  }, [user, isLoading, setLocation]);
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">

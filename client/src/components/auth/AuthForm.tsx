@@ -8,15 +8,17 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 
 const loginSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email address' }),
+  username: z.string().min(3, { message: 'Username must be at least 3 characters' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
 });
 
-const registerSchema = loginSchema.extend({
+const registerSchema = z.object({
   username: z.string().min(3, { message: 'Username must be at least 3 characters' }),
+  email: z.string().email({ message: 'Please enter a valid email address' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
   confirmPassword: z.string().min(6, { message: 'Password must be at least 6 characters' }),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -27,15 +29,14 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export function AuthForm() {
-  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('login');
   const { toast } = useToast();
-  const { signIn, signUp } = useAuth();
+  const { loginMutation, registerMutation } = useAuth();
   
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
     },
   });
@@ -51,42 +52,22 @@ export function AuthForm() {
   });
   
   async function onLoginSubmit(data: LoginFormValues) {
-    setIsLoading(true);
-    try {
-      await signIn(data.email, data.password);
-      toast({
-        title: "Login successful",
-        description: "Welcome back to SoloAscend!",
-      });
-    } catch (error) {
-      toast({
-        title: "Login failed",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    loginMutation.mutate({
+      username: data.username,
+      password: data.password
+    });
   }
   
   async function onRegisterSubmit(data: RegisterFormValues) {
-    setIsLoading(true);
-    try {
-      await signUp(data.email, data.password, data.username);
-      toast({
-        title: "Registration successful",
-        description: "Your account has been created. Welcome to SoloAscend!",
-      });
-      setActiveTab('login');
-    } catch (error) {
-      toast({
-        title: "Registration failed",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    registerMutation.mutate({
+      username: data.username,
+      email: data.email,
+      password: data.password,
+    }, {
+      onSuccess: () => {
+        setActiveTab('login');
+      }
+    });
   }
   
   return (
@@ -109,12 +90,12 @@ export function AuthForm() {
               <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
                 <FormField
                   control={loginForm.control}
-                  name="email"
+                  name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>Username</FormLabel>
                       <FormControl>
-                        <Input placeholder="your.email@example.com" {...field} />
+                        <Input placeholder="Enter your username" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -134,8 +115,8 @@ export function AuthForm() {
                   )}
                 />
                 <CardFooter className="flex justify-end px-0 pt-4">
-                  <Button type="submit" disabled={isLoading} className="w-full glow-effect">
-                    {isLoading ? (
+                  <Button type="submit" disabled={loginMutation.isPending} className="w-full glow-effect">
+                    {loginMutation.isPending ? (
                       <div className="flex items-center justify-center">
                         <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                         <span className="ml-2">Logging in...</span>
@@ -214,8 +195,8 @@ export function AuthForm() {
                   )}
                 />
                 <CardFooter className="flex justify-end px-0 pt-4">
-                  <Button type="submit" disabled={isLoading} className="w-full glow-effect">
-                    {isLoading ? (
+                  <Button type="submit" disabled={registerMutation.isPending} className="w-full glow-effect">
+                    {registerMutation.isPending ? (
                       <div className="flex items-center justify-center">
                         <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                         <span className="ml-2">Creating account...</span>
