@@ -1,9 +1,10 @@
 import { AuthForm } from "@/components/auth/AuthForm";
-import { useAuth } from "@/hooks/use-auth";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 
-export default function AuthPage() {
+// Component using auth hooks, wrapped with auth provider
+function AuthPageContent() {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   
@@ -65,5 +66,14 @@ export default function AuthPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Export with AuthProvider wrapper
+export default function AuthPage() {
+  return (
+    <AuthProvider>
+      <AuthPageContent />
+    </AuthProvider>
   );
 }

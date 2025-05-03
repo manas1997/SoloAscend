@@ -9,6 +9,7 @@ import SettingsPage from "@/pages/SettingsPage";
 import AuthPage from "@/pages/auth-page";
 import { MainLayout } from "./components/layout/MainLayout";
 import { ProtectedRoute } from "./lib/protected-route";
+import { AuthProvider } from "./hooks/use-auth";
 
 // Wrap components with MainLayout
 const ProtectedDashboard = () => (
@@ -47,16 +48,32 @@ const ProtectedSettings = () => (
   </MainLayout>
 );
 
-function App() {
-  return (
+// Create an Auth wrapper component for the auth page that doesn't rely on useAuth
+const AuthPageRoute = () => {
+  return <AuthPage />;
+};
+
+// Create a separate component for protected routes
+const ProtectedRoutes = () => (
+  <AuthProvider>
     <Switch>
-      <Route path="/auth" component={AuthPage} />
       <ProtectedRoute path="/" component={ProtectedDashboard} />
       <ProtectedRoute path="/missions" component={ProtectedMissions} />
       <ProtectedRoute path="/projects" component={ProtectedProjects} />
       <ProtectedRoute path="/progress" component={ProtectedProgress} />
       <ProtectedRoute path="/motivation" component={ProtectedMotivation} />
       <ProtectedRoute path="/settings" component={ProtectedSettings} />
+    </Switch>
+  </AuthProvider>
+);
+
+function App() {
+  return (
+    <Switch>
+      <Route path="/auth" component={AuthPageRoute} />
+      <Route path="/:rest*">
+        <ProtectedRoutes />
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
