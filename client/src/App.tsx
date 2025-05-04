@@ -74,11 +74,15 @@ const ProtectedRoutes = () => (
 function App() {
   return (
     <Switch>
-      <Route path="/auth" component={AuthPageRoute} />
+      <Route path="/auth">
+        <AuthPageRoute />
+      </Route>
       <Route path="/:rest*">
         <ProtectedRoutes />
       </Route>
-      <Route component={NotFound} />
+      <Route path="*">
+        <NotFound />
+      </Route>
     </Switch>
   );
 }
