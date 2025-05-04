@@ -1,6 +1,12 @@
 import { users, type User, type InsertUser, missions, type Mission, type InsertMission, progress, type Progress, type InsertProgress, quotes, type Quote, type InsertQuote, user_settings, type UserSettings, type InsertUserSettings, projects, type Project, type InsertProject, project_tasks, type ProjectTask, type InsertProjectTask } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import connectPg from "connect-pg-simple";
+import { db } from "./db";
+import { pool } from "./db";
+import { eq, sql } from "drizzle-orm";
+
+const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   // User operations
@@ -42,6 +48,189 @@ export interface IStorage {
   sessionStore: session.Store;
 }
 
+export class DatabaseStorage implements IStorage {
+  public sessionStore: session.Store;
+
+  constructor() {
+    this.sessionStore = new PostgresSessionStore({ 
+      pool, 
+      createTableIfMissing: true 
+    });
+    
+    // Seed quotes if they don't exist
+    this.seedQuotesIfEmpty();
+  }
+
+  // User operations
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values({
+      ...userData,
+      level: 1,
+      onboarded: false
+      // created_at will be set by defaultNow()
+    }).returning();
+    return user;
+  }
+
+  // Mission operations
+  async getMission(id: number): Promise<Mission | undefined> {
+    const [mission] = await db.select().from(missions).where(eq(missions.id, id));
+    return mission;
+  }
+
+  async getMissionsByUserId(userId: number): Promise<Mission[]> {
+    return await db.select().from(missions).where(eq(missions.user_id, userId));
+  }
+
+  async createMission(missionData: InsertMission): Promise<Mission> {
+    const [mission] = await db.insert(missions).values({
+      ...missionData
+      // created_at will be set by defaultNow()
+    }).returning();
+    return mission;
+  }
+
+  // Progress operations
+  async getProgress(id: number): Promise<Progress | undefined> {
+    const [progressItem] = await db.select().from(progress).where(eq(progress.id, id));
+    return progressItem;
+  }
+
+  async getProgressByUserId(userId: number): Promise<Progress[]> {
+    return await db.select().from(progress).where(eq(progress.user_id, userId));
+  }
+
+  async createProgress(progressData: InsertProgress): Promise<Progress> {
+    const [progressItem] = await db.insert(progress).values({
+      ...progressData
+      // date will be set by defaultNow()
+    }).returning();
+    return progressItem;
+  }
+
+  // Quote operations
+  async getQuote(id: number): Promise<Quote | undefined> {
+    const [quote] = await db.select().from(quotes).where(eq(quotes.id, id));
+    return quote;
+  }
+
+  async getRandomQuote(): Promise<Quote | undefined> {
+    // PostgreSQL's RANDOM() function to get a random quote
+    const [quote] = await db.select().from(quotes).orderBy(sql`RANDOM()`).limit(1);
+    return quote;
+  }
+
+  async createQuote(quoteData: InsertQuote): Promise<Quote> {
+    const [quote] = await db.insert(quotes).values(quoteData).returning();
+    return quote;
+  }
+
+  // User settings operations
+  async getUserSettings(id: number): Promise<UserSettings | undefined> {
+    const [setting] = await db.select().from(user_settings).where(eq(user_settings.id, id));
+    return setting;
+  }
+
+  async getUserSettingsByUserId(userId: number): Promise<UserSettings | undefined> {
+    const [setting] = await db.select().from(user_settings).where(eq(user_settings.user_id, userId));
+    return setting;
+  }
+
+  async createUserSettings(settingsData: InsertUserSettings): Promise<UserSettings> {
+    const [setting] = await db.insert(user_settings).values(settingsData).returning();
+    return setting;
+  }
+
+  // Project operations
+  async getProject(id: number): Promise<Project | undefined> {
+    const [project] = await db.select().from(projects).where(eq(projects.id, id));
+    return project;
+  }
+
+  async getProjectsByUserId(userId: number): Promise<Project[]> {
+    return await db.select().from(projects).where(eq(projects.user_id, userId));
+  }
+
+  async createProject(projectData: InsertProject): Promise<Project> {
+    // start_date will be set by defaultNow()
+    const [project] = await db.insert(projects).values({
+      ...projectData
+    }).returning();
+    return project;
+  }
+
+  // Project task operations
+  async getProjectTask(id: number): Promise<ProjectTask | undefined> {
+    const [task] = await db.select().from(project_tasks).where(eq(project_tasks.id, id));
+    return task;
+  }
+
+  async getTasksByProjectId(projectId: number): Promise<ProjectTask[]> {
+    return await db.select().from(project_tasks).where(eq(project_tasks.project_id, projectId));
+  }
+
+  async createProjectTask(taskData: InsertProjectTask): Promise<ProjectTask> {
+    const [task] = await db.insert(project_tasks).values(taskData).returning();
+    return task;
+  }
+
+  // Seed quotes if the quotes table is empty
+  private async seedQuotesIfEmpty() {
+    try {
+      const existingQuotes = await db.select().from(quotes).limit(1);
+      
+      if (existingQuotes.length === 0) {
+        const soloLevelingQuotes = [
+          {
+            text: "I don't have colleagues. Perhaps all hunters are meant to be alone.",
+            character: "Sung Jin-Woo",
+            audio_url: "https://soloascend.com/audio/quote1.mp3"
+          },
+          {
+            text: "I alone level up.",
+            character: "Sung Jin-Woo",
+            audio_url: "https://soloascend.com/audio/quote2.mp3"
+          },
+          {
+            text: "The strong prey on the weak. That is the absolute law of this world.",
+            character: "Sung Jin-Woo",
+            audio_url: "https://soloascend.com/audio/quote3.mp3"
+          },
+          {
+            text: "Daily Quest has been issued. Time Limit: 24 hours.",
+            character: "System",
+            audio_url: "https://soloascend.com/audio/quote4.mp3"
+          },
+          {
+            text: "You have been chosen as the Player. Complete all missions to level up.",
+            character: "System",
+            audio_url: "https://soloascend.com/audio/quote5.mp3"
+          }
+        ];
+        
+        for (const quote of soloLevelingQuotes) {
+          await this.createQuote(quote as InsertQuote);
+        }
+      }
+    } catch (error) {
+      // Table doesn't exist yet - this is expected on first run
+      // Tables will be created when db:push is run
+      console.log("Quotes table not found - skipping quote seeding until after schema push");
+    }
+  }
+}
+
+// Keep MemStorage class as fallback if needed
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private missions: Map<number, Mission>;
@@ -256,4 +445,5 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Use DatabaseStorage instead of MemStorage
+export const storage = new DatabaseStorage();
