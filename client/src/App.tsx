@@ -6,7 +6,7 @@ import ProjectsPage from "@/pages/ProjectsPage";
 import ProgressPage from "@/pages/ProgressPage";
 import MotivationPage from "@/pages/MotivationPage";
 import SettingsPage from "@/pages/SettingsPage";
-import AuthPage from "@/pages/auth-page";
+import Auth from "@/pages/Auth";
 import { MainLayout } from "./components/layout/MainLayout";
 import { ProtectedRoute } from "./lib/protected-route";
 import { AuthProvider } from "./hooks/use-auth";
@@ -48,9 +48,13 @@ const ProtectedSettings = () => (
   </MainLayout>
 );
 
-// Create an Auth wrapper component for the auth page that doesn't rely on useAuth
+// Create an Auth wrapper component for the auth page that includes auth provider
 const AuthPageRoute = () => {
-  return <AuthPage />;
+  return (
+    <AuthProvider>
+      <Auth />
+    </AuthProvider>
+  );
 };
 
 // Create a separate component for protected routes
