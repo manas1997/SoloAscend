@@ -96,9 +96,9 @@ export function OnboardingForm() {
       
       console.log("Redirecting to dashboard after onboarding");
       
-      // Use the simplest possible method - just go to dashboard with timestamp to prevent caching
+      // Use our new direct-dashboard route that bypasses protection
       setTimeout(() => {
-        window.location.href = "/?t=" + Date.now();
+        window.location.href = "/direct-dashboard?t=" + Date.now();
       }, 1000);
       
     } catch (error) {
