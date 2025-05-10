@@ -1,0 +1,25 @@
+[vite] connecting...
+[vite] connected.
+Authentication state: 
+Object {isAuthenticated: false, user: false}
+Authentication state: 
+Object {isAuthenticated: false, user: false}
+Error fetching user: 
+DOMException {}
+
+Request was aborted
+DOMException {}
+stack: "AbortError: signal is aborted without reason↵ at Object.cancel (https://d5a84166-40af-47b5-bc7f-5b61495945c1-00-3f2jd439opxji.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=060d5a37:441:53)↵ at _a4.removeObserver (https://d5a84166-40af-47b5-bc7f-5b61495945c1-00-3f2jd439opxji.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=060d5a37:771:42)↵ at _a9.destroy (https://d5a84166-40af-47b5-bc7f-5b61495945c1-00-3f2jd439opxji.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=060d5a37:1928:39)↵ at _a9.onUnsubscribe (https://d5a84166-40af-47b5-bc7f-5b61495945c1-00-3f2jd439opxji.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=060d5a37:1907:12)↵ at https://d5a84166-40af-47b5-bc7f-5b61495945c1-00-3f2jd439opxji.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=060d5a37:27:12↵ at safelyCallDestroy (https://d5a84166-40af-47b5-bc7f-5b61495945c1-00-3f2jd439opxji.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-276SZO74.js?v=060d5a37:16748:13)↵ at commitHookEffectListUnmount (https://d5a84166-40af-47b5-bc7f-5b61495945c1-00-3f2jd439opxji.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-276SZO74.js?v=060d5a37:16875:19)↵ at invokePassiveEffectUnmountInDEV (https://d5a84166-40af-47b5-bc7f-5b61495945c1-00-3f2jd439opxji.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-276SZO74.js?v=060d5a37:18363:19)↵ at invokeEffectsInDev (https://d5a84166-40af-47b5-bc7f-5b61495945c1-00-3f2jd439opxji.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-276SZO74.js?v=060d5a37:19701:19)↵ at commitDoubleInvokeEffectsInDEV (https://d5a84166-40af-47b5-bc7f-5b61495945c1-00-3f2jd439opxji.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-276SZO74.js?v=060d5a37:19682:15)"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: DOMException
+
+at t.value (https://d5a84166-40af-47b5-bc7f-5b61495945c1-00-3f2jd439opxji.riker.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://d5a84166-40af-47b5-bc7f-5b61495945c1-00-3f2jd439opxji.riker.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://d5a84166-40af-47b5-bc7f-5b61495945c1-00-3f2jd439opxji.riker.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://d5a84166-40af-47b5-bc7f-5b61495945c1-00-3f2jd439opxji.riker.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+User API response status: 200
+User data received: 
+Object {id: 1, username: "manas007", email: "manas.work1997@gmail.com", password: "54a6ed396c6daa991deb4a263cd81f2c7bd9525304f6623a6b4b0662d819c8c13051d15ea213bfbd86da5831f70ffd65ed3…", avatar_url: null, …}
+Authentication state: 
+Object {isAuthenticated: true, user: true}

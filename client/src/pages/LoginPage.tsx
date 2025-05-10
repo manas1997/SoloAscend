@@ -1,6 +1,6 @@
-import { Route, Switch, useLocation } from "wouter";
-import { AuthProvider, useAuth } from "./hooks/use-auth";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { 
   Card, 
@@ -14,59 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 
-// Import pages
-import DashboardPage from "./pages/DashboardPage";
-import MissionsPage from "./pages/MissionsPage";
-import ProgressPage from "./pages/ProgressPage";
-import ProjectsPage from "./pages/ProjectsPage";
-
-// Welcome page that redirects to dashboard if authenticated
-function WelcomePage() {
-  const { isAuthenticated, isLoading } = useAuth();
-  const [, navigate] = useLocation();
-  
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/dashboard");
-    }
-  }, [isAuthenticated, navigate]);
-  
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Loading...</span>
-      </div>
-    );
-  }
-  
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6">
-      <div className="text-center max-w-2xl">
-        <h1 className="text-4xl font-bold tracking-tight mb-4">SoloAscend</h1>
-        <p className="text-xl mb-8">
-          Transform your productivity journey into a personal adventure
-        </p>
-        <p className="mb-8 text-muted-foreground">
-          SoloAscend helps you track goals, complete missions, manage projects, and stay motivated
-          through a unique blend of productivity tools and gamification elements.
-        </p>
-        <div className="flex gap-4 justify-center">
-          <Button size="lg" onClick={() => navigate("/login")}>
-            Get Started
-          </Button>
-          <Button size="lg" variant="outline" onClick={() => navigate("/login")}>
-            Log In
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Login page component
-function LoginPage() {
-  const { loginMutation, registerMutation, isAuthenticated } = useAuth();
+export default function LoginPage() {
+  const { loginMutation, registerMutation } = useAuth();
   const [, navigate] = useLocation();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -74,13 +23,6 @@ function LoginPage() {
     email: "",
     password: ""
   });
-  
-  // Redirect to dashboard if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/dashboard");
-    }
-  }, [isAuthenticated, navigate]);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -233,20 +175,3 @@ function LoginPage() {
     </div>
   );
 }
-
-function App() {
-  return (
-    <AuthProvider>
-      <Switch>
-        <Route path="/" component={WelcomePage} />
-        <Route path="/login" component={LoginPage} />
-        <Route path="/dashboard" component={DashboardPage} />
-        <Route path="/missions" component={MissionsPage} />
-        <Route path="/progress" component={ProgressPage} />
-        <Route path="/projects" component={ProjectsPage} />
-      </Switch>
-    </AuthProvider>
-  );
-}
-
-export default App;
