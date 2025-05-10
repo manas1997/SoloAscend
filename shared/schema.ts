@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, foreignKey } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, foreignKey, date } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -89,6 +89,24 @@ export const anime_reels = pgTable("anime_reels", {
   date_added: timestamp("date_added").defaultNow(),
 });
 
+// Task types for selection
+export const task_types = pgTable("task_types", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  category: text("category"),
+  icon: text("icon"),
+});
+
+// User daily tasks selection
+export const user_tasks = pgTable("user_tasks", {
+  id: serial("id").primaryKey(),
+  user_id: integer("user_id").notNull().references(() => users.id),
+  task_name: text("task_name").notNull(),
+  priority: integer("priority").notNull().default(5),
+  task_date: date("task_date").defaultNow(),
+});
+
 // Schema validations for insert operations
 export const insertUserSchema = createInsertSchema(users).omit({ 
   id: true, 
@@ -129,6 +147,15 @@ export const insertAnimeReelSchema = createInsertSchema(anime_reels).omit({
   date_added: true
 });
 
+export const insertTaskTypeSchema = createInsertSchema(task_types).omit({
+  id: true
+});
+
+export const insertUserTaskSchema = createInsertSchema(user_tasks).omit({
+  id: true,
+  task_date: true
+});
+
 // Types for use throughout the application
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -153,3 +180,9 @@ export type InsertProjectTask = z.infer<typeof insertProjectTaskSchema>;
 
 export type AnimeReel = typeof anime_reels.$inferSelect;
 export type InsertAnimeReel = z.infer<typeof insertAnimeReelSchema>;
+
+export type TaskType = typeof task_types.$inferSelect;
+export type InsertTaskType = z.infer<typeof insertTaskTypeSchema>;
+
+export type UserTask = typeof user_tasks.$inferSelect;
+export type InsertUserTask = z.infer<typeof insertUserTaskSchema>;

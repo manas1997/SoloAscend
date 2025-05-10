@@ -1,4 +1,4 @@
-import { users, type User, type InsertUser, missions, type Mission, type InsertMission, progress, type Progress, type InsertProgress, quotes, type Quote, type InsertQuote, user_settings, type UserSettings, type InsertUserSettings, projects, type Project, type InsertProject, project_tasks, type ProjectTask, type InsertProjectTask, anime_reels, type AnimeReel, type InsertAnimeReel } from "@shared/schema";
+import { users, type User, type InsertUser, missions, type Mission, type InsertMission, progress, type Progress, type InsertProgress, quotes, type Quote, type InsertQuote, user_settings, type UserSettings, type InsertUserSettings, projects, type Project, type InsertProject, project_tasks, type ProjectTask, type InsertProjectTask, anime_reels, type AnimeReel, type InsertAnimeReel, task_types, type TaskType, type InsertTaskType, user_tasks, type UserTask, type InsertUserTask } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
