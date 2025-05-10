@@ -1,15 +1,32 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 
 export default function Dashboard() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, refetch } = useAuth();
   
   console.log("Dashboard rendering - User:", user, "Loading:", isLoading);
   
-  // Check for login cookie set during onboarding redirect
-  const hasLoggedInCookie = document.cookie.includes('loggedIn=true');
-  console.log("Has logged in cookie:", hasLoggedInCookie);
+  // Track refresh attempts
+  const [refreshAttempts, setRefreshAttempts] = useState(0);
+  
+  // Auto-refresh user data every 2 seconds up to 5 times if loading
+  useEffect(() => {
+    let interval: number | undefined;
+    
+    if (isLoading && refreshAttempts < 5) {
+      interval = window.setInterval(() => {
+        console.log(`Auto-refreshing auth data, attempt ${refreshAttempts + 1}`);
+        refetch();
+        setRefreshAttempts(prev => prev + 1);
+      }, 2000);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isLoading, refreshAttempts, refetch]);
   
   // Calculate journey day (days since registration)
   const calculateJourneyDay = () => {
@@ -24,50 +41,47 @@ export default function Dashboard() {
     return diffDays;
   };
   
-  // If we're loading or we have the login cookie, show the loading state
-  if (isLoading || hasLoggedInCookie) {
-    // If we've been loading for too long with the cookie, try forcing a refresh
-    if (hasLoggedInCookie) {
-      setTimeout(() => {
-        // Clear the cookie after 2 seconds to prevent infinite loop
-        document.cookie = "loggedIn=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        
-        // If we still don't have user data after 2 seconds, try one more reload
-        if (!user && !isLoading) {
-          console.log("No user data after timeout, forcing refresh");
-          window.location.reload();
-        }
-      }, 2000);
-    }
-    
+  // Show loading state if user data is still loading
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mb-4"></div>
           <p className="text-muted-foreground">Loading your dashboard...</p>
-          <p className="mt-2 text-xs text-muted-foreground">If this takes too long, try refreshing the page.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+          >
+            Refresh Page
+          </button>
         </div>
       </div>
     );
   }
   
-  // Handle no user case
+  // Handle no user case - show a simple login button
   if (!user) {
-    console.error("No user data available for dashboard");
-    
-    // Force a refresh or redirect back to auth
-    setTimeout(() => {
-      window.location.href = "/auth";
-    }, 100);
+    console.log("No user data available for dashboard, showing login option");
     
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center p-6 max-w-md">
-          <h1 className="text-2xl font-bold mb-4">Authentication Error</h1>
-          <p className="mb-4">You are not logged in or your session has expired.</p>
-          <a href="/auth" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90">
-            Go to Login
-          </a>
+          <h1 className="text-2xl font-bold mb-4">Welcome to SoloAscend</h1>
+          <p className="mb-6">To start your productivity journey, please log in or create an account.</p>
+          <div className="flex justify-center space-x-4">
+            <a 
+              href="/auth" 
+              className="px-6 py-3 bg-primary text-white rounded-md font-medium hover:bg-primary/90 transition-colors"
+            >
+              Log In / Sign Up
+            </a>
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-secondary text-white rounded-md font-medium hover:bg-secondary/90 transition-colors"
+            >
+              Refresh Page
+            </button>
+          </div>
         </div>
       </div>
     );

@@ -94,20 +94,11 @@ export function OnboardingForm() {
         description: "Onboarding complete! Redirecting to dashboard...",
       });
       
-      console.log("Forcing hard reset to dashboard");
+      console.log("Redirecting to dashboard after onboarding");
       
-      // Force an immediate, complete page reset
+      // Use the simplest possible method - just go to dashboard with timestamp to prevent caching
       setTimeout(() => {
-        // Use the most aggressive approach to force a clean page load
-        document.cookie = "loggedIn=true; path=/"; // Set a cookie to help with persistence
-        console.log("Navigation initiated");
-        
-        // Create a form that posts to the root url to force a complete reset
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/';
-        document.body.appendChild(form);
-        form.submit();
+        window.location.href = "/?t=" + Date.now();
       }, 1000);
       
     } catch (error) {
