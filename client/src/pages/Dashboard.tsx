@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   
   // Calculate journey day (days since registration)
   const calculateJourneyDay = () => {
@@ -17,6 +17,33 @@ export default function Dashboard() {
     
     return diffDays;
   };
+  
+  // Show loading state if user data is still loading
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mb-4"></div>
+          <p className="text-muted-foreground">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Handle no user case
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center p-6 max-w-md">
+          <h1 className="text-2xl font-bold mb-4">Authentication Error</h1>
+          <p className="mb-4">You are not logged in or your session has expired.</p>
+          <a href="/auth" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90">
+            Go to Login
+          </a>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="py-6 px-4 sm:px-6 lg:px-8">

@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes meteor-glow {
+  0% {
+    box-shadow: 0 0 10px 2px rgba(79, 70, 229, 0.4);
+    transform: scale(0.95);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px rgba(79, 70, 229, 0.6);
+    transform: scale(1.05);
+  }
+  100% {
+    box-shadow: 0 0 10px 2px rgba(79, 70, 229, 0.4);
+    transform: scale(0.95);
+  }
+}
+
+.animate-meteor-glow {
+  animation: meteor-glow 2s infinite;
+}
+
 :root {
   --background: 240 10% 3.9%;
   --foreground: 0 0% 98%;
