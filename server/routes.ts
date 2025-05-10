@@ -349,6 +349,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Get all anime reels
+  app.get("/api/anime-reels", async (req, res) => {
+    try {
+      const reels = await storage.getAllAnimeReels();
+      res.json(reels);
+    } catch (error) {
+      console.error("Failed to fetch anime reels:", error);
+      res.status(500).json({ message: "Error fetching anime reels" });
+    }
+  });
+  
   app.post("/api/anime-reels", async (req, res) => {
     try {
       const reelData = insertAnimeReelSchema.parse(req.body);
