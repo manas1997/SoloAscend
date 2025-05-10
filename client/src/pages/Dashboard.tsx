@@ -1,11 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { MotivationalQuote } from "@/components/dashboard/MotivationalQuote";
-import { UserStateForm } from "@/components/dashboard/UserStateForm";
-import { ProgressStats } from "@/components/dashboard/ProgressStats";
-import { CurrentGoalsPanel } from "@/components/dashboard/CurrentGoalsPanel";
-import { MissionList } from "@/components/missions/MissionList";
-import { ProjectList } from "@/components/projects/ProjectList";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 
 export default function Dashboard() {
@@ -16,7 +10,7 @@ export default function Dashboard() {
     if (!user) return 0;
     
     const registrationDate = new Date();
-    registrationDate.setDate(registrationDate.getDate() - 143); // Mock for demo
+    registrationDate.setDate(registrationDate.getDate() - 7); // Mock 1 week for new users
     
     const diffTime = Math.abs(new Date().getTime() - registrationDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -39,40 +33,75 @@ export default function Dashboard() {
         
         <div className="mt-4 flex md:mt-0 md:ml-4 space-x-3">
           <Button variant="default" className="glow-effect" asChild>
-            <a href="/missions">
+            <a href="/select-tasks">
               <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              New Mission
+              Select Tasks
             </a>
-          </Button>
-          <Button variant="outline">
-            <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-            </svg>
-            More
           </Button>
         </div>
       </div>
       
-      {/* Motivational Quote */}
-      <MotivationalQuote />
-      
-      {/* States Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <UserStateForm />
-        <ProgressStats />
-        <CurrentGoalsPanel />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="bg-card rounded-lg p-6 shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Your Daily Missions</h2>
+          <p className="text-muted-foreground mb-4">
+            Select and prioritize your top 5 tasks for today to maximize your productivity
+          </p>
+          <div className="mt-4">
+            <a href="/select-tasks" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90">
+              Select Tasks
+            </a>
+          </div>
+        </div>
+        
+        <div className="bg-card rounded-lg p-6 shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Your Progress</h2>
+          <p className="text-muted-foreground mb-4">
+            Track your journey to becoming successful
+          </p>
+          <div className="w-full bg-background rounded-full h-2.5 mb-4">
+            <div className="bg-primary h-2.5 rounded-full" style={{ width: '25%' }}></div>
+          </div>
+          <p className="text-sm text-muted-foreground">25% complete</p>
+        </div>
       </div>
       
-      {/* Daily Missions Section */}
-      <div className="mb-8">
-        <MissionList />
-      </div>
-      
-      {/* Projects Section */}
-      <div>
-        <ProjectList />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-card rounded-lg p-6 shadow-md md:col-span-2">
+          <h2 className="text-xl font-semibold mb-4">Motivational Quote</h2>
+          <blockquote className="p-4 bg-background rounded-lg">
+            <p className="text-lg font-medium text-foreground leading-relaxed font-poppins">
+              "I don't have colleagues. Perhaps all hunters are meant to be alone."
+            </p>
+            <footer className="mt-2">
+              <div className="flex items-center">
+                <div className="h-10 w-10 rounded-full border-2 border-primary overflow-hidden">
+                  <div className="w-full h-full bg-primary/20 flex items-center justify-center text-primary">
+                    SJ
+                  </div>
+                </div>
+                <cite className="ml-3 not-italic">
+                  <span className="text-sm font-semibold text-foreground">Sung Jin-Woo</span>
+                  <span className="block text-xs text-muted-foreground">Solo Leveling</span>
+                </cite>
+              </div>
+            </footer>
+          </blockquote>
+        </div>
+        
+        <div className="bg-card rounded-lg p-6 shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Anime Surge</h2>
+          <p className="text-muted-foreground mb-4">
+            Get motivated with anime content
+          </p>
+          <div className="mt-4">
+            <a href="/anime-surge" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90">
+              View Anime Content
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );

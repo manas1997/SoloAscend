@@ -1,17 +1,14 @@
-import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getRandomQuote } from '@/lib/supabase';
 import type { Quote } from '@shared/schema';
+import { getQueryFn } from '@/lib/queryClient';
 
 export function useQuotes() {
   const queryClient = useQueryClient();
   
   // Fetch a random quote
-  const { data: quote, isLoading, refetch } = useQuery({
+  const { data: quote, isLoading, refetch } = useQuery<Quote>({
     queryKey: ['/api/quotes/random'],
-    queryFn: async () => {
-      return await getRandomQuote();
-    },
+    queryFn: getQueryFn({ on401: 'throw' }),
     staleTime: 1000 * 60 * 60, // 1 hour
   });
   
