@@ -4,7 +4,7 @@ import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
 import { db } from "./db";
 import { pool } from "./db";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and, desc, lte } from "drizzle-orm";
 
 const PostgresSessionStore = connectPg(session);
 
@@ -49,6 +49,19 @@ export interface IStorage {
   getAllAnimeReels(): Promise<AnimeReel[]>;
   getRandomAnimeReel(): Promise<AnimeReel | undefined>;
   createAnimeReel(reel: InsertAnimeReel): Promise<AnimeReel>;
+  
+  // Task Types operations
+  getTaskType(id: number): Promise<TaskType | undefined>;
+  getAllTaskTypes(): Promise<TaskType[]>;
+  createTaskType(taskType: InsertTaskType): Promise<TaskType>;
+  
+  // User Tasks operations
+  getUserTask(id: number): Promise<UserTask | undefined>;
+  getUserTasksByUserId(userId: number, date?: Date): Promise<UserTask[]>;
+  createUserTask(userTask: InsertUserTask): Promise<UserTask>;
+  updateUserTaskPriority(id: number, priority: number): Promise<UserTask>;
+  deleteUserTask(id: number): Promise<void>;
+  clearUserTasks(userId: number, date?: Date): Promise<void>;
 
   // Session store
   sessionStore: session.Store;
@@ -266,6 +279,8 @@ export class MemStorage implements IStorage {
   private projectsList: Map<number, Project>;
   private projectTasks: Map<number, ProjectTask>;
   private animeReels: Map<number, AnimeReel>;
+  private taskTypes: Map<number, TaskType>;
+  private userTasks: Map<number, UserTask>;
   
   private userIdCounter: number;
   private missionIdCounter: number;
@@ -275,6 +290,8 @@ export class MemStorage implements IStorage {
   private projectIdCounter: number;
   private taskIdCounter: number;
   private animeReelIdCounter: number;
+  private taskTypeIdCounter: number;
+  private userTaskIdCounter: number;
 
   public sessionStore: session.Store;
   
@@ -287,6 +304,8 @@ export class MemStorage implements IStorage {
     this.projectsList = new Map();
     this.projectTasks = new Map();
     this.animeReels = new Map();
+    this.taskTypes = new Map();
+    this.userTasks = new Map();
     
     this.userIdCounter = 1;
     this.missionIdCounter = 1;
@@ -296,6 +315,8 @@ export class MemStorage implements IStorage {
     this.projectIdCounter = 1;
     this.taskIdCounter = 1;
     this.animeReelIdCounter = 1;
+    this.taskTypeIdCounter = 1;
+    this.userTaskIdCounter = 1;
     
     // Create memory store for sessions
     const MemoryStore = createMemoryStore(session);
@@ -508,6 +529,76 @@ export class MemStorage implements IStorage {
     const reel: AnimeReel = { ...reelData, id, date_added };
     this.animeReels.set(id, reel);
     return reel;
+  }
+  
+  // Task Types operations
+  async getTaskType(id: number): Promise<TaskType | undefined> {
+    return this.taskTypes.get(id);
+  }
+  
+  async getAllTaskTypes(): Promise<TaskType[]> {
+    return Array.from(this.taskTypes.values());
+  }
+  
+  async createTaskType(taskTypeData: InsertTaskType): Promise<TaskType> {
+    const id = this.taskTypeIdCounter++;
+    const taskType: TaskType = { ...taskTypeData, id };
+    this.taskTypes.set(id, taskType);
+    return taskType;
+  }
+  
+  // User Tasks operations
+  async getUserTask(id: number): Promise<UserTask | undefined> {
+    return this.userTasks.get(id);
+  }
+  
+  async getUserTasksByUserId(userId: number, date?: Date): Promise<UserTask[]> {
+    const tasks = Array.from(this.userTasks.values()).filter(
+      (task) => task.user_id === userId
+    );
+    
+    if (date) {
+      const dateString = date.toISOString().split('T')[0]; // Get YYYY-MM-DD format
+      return tasks.filter(
+        (task) => task.task_date.toISOString().split('T')[0] === dateString
+      );
+    }
+    
+    return tasks;
+  }
+  
+  async createUserTask(userTaskData: InsertUserTask): Promise<UserTask> {
+    const id = this.userTaskIdCounter++;
+    const task_date = new Date();
+    const userTask: UserTask = { 
+      ...userTaskData, 
+      id, 
+      task_date
+    };
+    this.userTasks.set(id, userTask);
+    return userTask;
+  }
+  
+  async updateUserTaskPriority(id: number, priority: number): Promise<UserTask> {
+    const userTask = this.userTasks.get(id);
+    if (!userTask) {
+      throw new Error("User task not found");
+    }
+    
+    const updatedTask = { ...userTask, priority };
+    this.userTasks.set(id, updatedTask);
+    return updatedTask;
+  }
+  
+  async deleteUserTask(id: number): Promise<void> {
+    this.userTasks.delete(id);
+  }
+  
+  async clearUserTasks(userId: number, date?: Date): Promise<void> {
+    const tasks = await this.getUserTasksByUserId(userId, date);
+    for (const task of tasks) {
+      this.userTasks.delete(task.id);
+    }
   }
 
   // Seed initial data
