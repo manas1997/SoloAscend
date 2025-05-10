@@ -5,6 +5,7 @@ import MissionsPage from "@/pages/MissionsPage";
 import ProjectsPage from "@/pages/ProjectsPage";
 import ProgressPage from "@/pages/ProgressPage";
 import MotivationPage from "@/pages/MotivationPage";
+import AnimeSurgePage from "@/pages/AnimeSurgePage";
 import SettingsPage from "@/pages/SettingsPage";
 import AuthPage from "@/pages/auth-page";
 import { MainLayout } from "./components/layout/MainLayout";
@@ -42,6 +43,12 @@ const ProtectedMotivation = () => (
   </MainLayout>
 );
 
+const ProtectedAnimeSurge = () => (
+  <MainLayout>
+    <AnimeSurgePage />
+  </MainLayout>
+);
+
 const ProtectedSettings = () => (
   <MainLayout>
     <SettingsPage />
@@ -62,6 +69,7 @@ const ProtectedRoutes = () => (
       <ProtectedRoute path="/projects" component={ProtectedProjects} />
       <ProtectedRoute path="/progress" component={ProtectedProgress} />
       <ProtectedRoute path="/motivation" component={ProtectedMotivation} />
+      <ProtectedRoute path="/anime-surge" component={ProtectedAnimeSurge} />
       <ProtectedRoute path="/settings" component={ProtectedSettings} />
     </Switch>
   </AuthProvider>

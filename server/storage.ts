@@ -1,4 +1,4 @@
-import { users, type User, type InsertUser, missions, type Mission, type InsertMission, progress, type Progress, type InsertProgress, quotes, type Quote, type InsertQuote, user_settings, type UserSettings, type InsertUserSettings, projects, type Project, type InsertProject, project_tasks, type ProjectTask, type InsertProjectTask } from "@shared/schema";
+import { users, type User, type InsertUser, missions, type Mission, type InsertMission, progress, type Progress, type InsertProgress, quotes, type Quote, type InsertQuote, user_settings, type UserSettings, type InsertUserSettings, projects, type Project, type InsertProject, project_tasks, type ProjectTask, type InsertProjectTask, anime_reels, type AnimeReel, type InsertAnimeReel } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
@@ -189,6 +189,26 @@ export class DatabaseStorage implements IStorage {
     const [task] = await db.insert(project_tasks).values(taskData).returning();
     return task;
   }
+  
+  // Anime Reel operations
+  async getAnimeReel(id: number): Promise<AnimeReel | undefined> {
+    const [reel] = await db.select().from(anime_reels).where(eq(anime_reels.id, id));
+    return reel;
+  }
+  
+  async getAllAnimeReels(): Promise<AnimeReel[]> {
+    return await db.select().from(anime_reels);
+  }
+  
+  async getRandomAnimeReel(): Promise<AnimeReel | undefined> {
+    const [reel] = await db.select().from(anime_reels).orderBy(sql`RANDOM()`).limit(1);
+    return reel;
+  }
+  
+  async createAnimeReel(reelData: InsertAnimeReel): Promise<AnimeReel> {
+    const [reel] = await db.insert(anime_reels).values(reelData).returning();
+    return reel;
+  }
 
   // Seed quotes if the quotes table is empty
   private async seedQuotesIfEmpty() {
@@ -245,6 +265,7 @@ export class MemStorage implements IStorage {
   private userSettings: Map<number, UserSettings>;
   private projectsList: Map<number, Project>;
   private projectTasks: Map<number, ProjectTask>;
+  private animeReels: Map<number, AnimeReel>;
   
   private userIdCounter: number;
   private missionIdCounter: number;
@@ -253,6 +274,7 @@ export class MemStorage implements IStorage {
   private settingsIdCounter: number;
   private projectIdCounter: number;
   private taskIdCounter: number;
+  private animeReelIdCounter: number;
 
   public sessionStore: session.Store;
   
@@ -264,6 +286,7 @@ export class MemStorage implements IStorage {
     this.userSettings = new Map();
     this.projectsList = new Map();
     this.projectTasks = new Map();
+    this.animeReels = new Map();
     
     this.userIdCounter = 1;
     this.missionIdCounter = 1;
@@ -272,6 +295,7 @@ export class MemStorage implements IStorage {
     this.settingsIdCounter = 1;
     this.projectIdCounter = 1;
     this.taskIdCounter = 1;
+    this.animeReelIdCounter = 1;
     
     // Create memory store for sessions
     const MemoryStore = createMemoryStore(session);
@@ -355,7 +379,12 @@ export class MemStorage implements IStorage {
 
   async createQuote(quoteData: InsertQuote): Promise<Quote> {
     const id = this.quoteIdCounter++;
-    const quote: Quote = { ...quoteData, id };
+    const quote: Quote = { 
+      ...quoteData, 
+      id,
+      character: quoteData.character || null, 
+      audio_url: quoteData.audio_url || null
+    };
     this.quotesList.set(id, quote);
     return quote;
   }
@@ -413,6 +442,31 @@ export class MemStorage implements IStorage {
     const task: ProjectTask = { ...taskData, id };
     this.projectTasks.set(id, task);
     return task;
+  }
+  
+  // Anime Reel operations
+  async getAnimeReel(id: number): Promise<AnimeReel | undefined> {
+    return this.animeReels.get(id);
+  }
+  
+  async getAllAnimeReels(): Promise<AnimeReel[]> {
+    return Array.from(this.animeReels.values());
+  }
+  
+  async getRandomAnimeReel(): Promise<AnimeReel | undefined> {
+    const reels = Array.from(this.animeReels.values());
+    if (reels.length === 0) return undefined;
+    
+    const randomIndex = Math.floor(Math.random() * reels.length);
+    return reels[randomIndex];
+  }
+  
+  async createAnimeReel(reelData: InsertAnimeReel): Promise<AnimeReel> {
+    const id = this.animeReelIdCounter++;
+    const date_added = new Date();
+    const reel: AnimeReel = { ...reelData, id, date_added };
+    this.animeReels.set(id, reel);
+    return reel;
   }
 
   // Seed initial data

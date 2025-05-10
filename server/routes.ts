@@ -9,7 +9,8 @@ import {
   insertQuoteSchema,
   insertUserSettingsSchema,
   insertProjectSchema,
-  insertProjectTaskSchema
+  insertProjectTaskSchema,
+  insertAnimeReelSchema
 } from "@shared/schema";
 import { setupAuth } from "./auth";
 
@@ -208,6 +209,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(tasks);
     } catch (error) {
       res.status(500).json({ message: "Error fetching project tasks" });
+    }
+  });
+  
+  // Anime Reels routes
+  app.get("/api/anime-reels", async (req, res) => {
+    try {
+      const reels = await storage.getAllAnimeReels();
+      res.json(reels);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching anime reels" });
+    }
+  });
+  
+  app.get("/api/anime-reels/random", async (req, res) => {
+    try {
+      const reel = await storage.getRandomAnimeReel();
+      if (!reel) {
+        return res.status(404).json({ message: "No anime reels found" });
+      }
+      res.json(reel);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching random anime reel" });
+    }
+  });
+  
+  app.get("/api/anime-reels/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const reel = await storage.getAnimeReel(id);
+      
+      if (!reel) {
+        return res.status(404).json({ message: "Anime reel not found" });
+      }
+      
+      res.json(reel);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching anime reel" });
+    }
+  });
+  
+  app.post("/api/anime-reels", async (req, res) => {
+    try {
+      const reelData = insertAnimeReelSchema.parse(req.body);
+      const reel = await storage.createAnimeReel(reelData);
+      res.status(201).json(reel);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: error.errors });
+      } else {
+        res.status(500).json({ message: "Error creating anime reel" });
+      }
     }
   });
 
