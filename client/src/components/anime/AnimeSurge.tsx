@@ -33,6 +33,7 @@ const SAMPLE_REELS = [
     quote: "The difference between the novice and the master is that the master has failed more times than the novice has even tried.",
     character: "Itachi Uchiha",
     source_account: "@anime_motivation",
+    anime_source: "Naruto",
     date_added: new Date()
   },
   {
@@ -42,6 +43,7 @@ const SAMPLE_REELS = [
     quote: "The moment you think of giving up, think of the reason why you held on so long.",
     character: "Natsu Dragneel",
     source_account: "@anime_quotes",
+    anime_source: "Fairy Tail",
     date_added: new Date()
   },
   {
@@ -51,6 +53,7 @@ const SAMPLE_REELS = [
     quote: "I'll become stronger than anyone else, so everyone will be safe from any kind of danger.",
     character: "Sung Jin-Woo",
     source_account: "@solo_leveling_official",
+    anime_source: "Solo Leveling",
     date_added: new Date()
   }
 ];
@@ -170,9 +173,14 @@ export function AnimeSurge({ onComplete }: AnimeSurgeProps) {
                     <p className="mt-2 text-sm md:text-base text-white/80">
                       — {currentReel.character}
                     </p>
-                    <p className="text-xs text-white/60 mt-1">
-                      Via {currentReel.source_account}
-                    </p>
+                    <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
+                      <p className="text-xs text-white/60">
+                        {currentReel.anime_source || "Anime"}
+                      </p>
+                      <p className="text-xs text-white/60">
+                        Via {currentReel.source_account}
+                      </p>
+                    </div>
                   </div>
                   
                   {/* Controls */}

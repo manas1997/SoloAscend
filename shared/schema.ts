@@ -86,6 +86,7 @@ export const anime_reels = pgTable("anime_reels", {
   quote: text("quote").notNull(),
   character: text("character").notNull(),
   source_account: text("source_account").notNull(),
+  anime_source: text("anime_source").default("Other"),
   date_added: timestamp("date_added").defaultNow(),
 });
 
@@ -145,6 +146,8 @@ export const insertProjectTaskSchema = createInsertSchema(project_tasks).omit({
 export const insertAnimeReelSchema = createInsertSchema(anime_reels).omit({ 
   id: true,
   date_added: true
+}).extend({
+  anime_source: z.string().optional()
 });
 
 export const insertTaskTypeSchema = createInsertSchema(task_types).omit({
