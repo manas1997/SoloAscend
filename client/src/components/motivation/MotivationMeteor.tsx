@@ -16,47 +16,107 @@ interface MotivationMeteorProps {
   onComplete?: () => void;
 }
 
-// Motivational quote list
+// Anime motivational quote list
 const quotes = [
   {
-    text: "The only way to do great work is to love what you do.",
-    author: "Steve Jobs"
+    text: "If you don't like your destiny, don't accept it. Instead, have the courage to change it the way you want it to be.",
+    author: "Naruto Uzumaki (Naruto)"
   },
   {
-    text: "Success is not final, failure is not fatal: It is the courage to continue that counts.",
-    author: "Winston Churchill"
+    text: "The only ones who should kill are those who are prepared to be killed.",
+    author: "Lelouch (Code Geass)"
   },
   {
-    text: "The future belongs to those who believe in the beauty of their dreams.",
-    author: "Eleanor Roosevelt"
+    text: "If you don't take risks, you can't create a future.",
+    author: "Monkey D. Luffy (One Piece)"
   },
   {
-    text: "The best way to predict the future is to create it.",
-    author: "Peter Drucker"
+    text: "It's not always possible to do what we want to do, but it's important to believe in something before you actually do it.",
+    author: "Might Guy (Naruto)"
   },
   {
-    text: "Don't watch the clock; do what it does. Keep going.",
-    author: "Sam Levenson"
+    text: "I'll leave tomorrow's problems to tomorrow's me.",
+    author: "Saitama (One Punch Man)"
   },
   {
-    text: "Believe you can and you're halfway there.",
-    author: "Theodore Roosevelt"
+    text: "If you can't do something, then don't. Focus on what you can do.",
+    author: "Shiroe (Log Horizon)"
   },
   {
-    text: "Everything you've ever wanted is on the other side of fear.",
-    author: "George Addair"
+    text: "A person grows when they are able to overcome hardships. Protection is important, but there are some things that people must learn on their own.",
+    author: "Jiraiya (Naruto)"
   },
   {
-    text: "The only limit to our realization of tomorrow is our doubts of today.",
-    author: "Franklin D. Roosevelt"
+    text: "The moment you think of giving up, think of the reason why you held on so long.",
+    author: "Natsu Dragneel (Fairy Tail)"
   },
   {
-    text: "The way to get started is to quit talking and begin doing.",
-    author: "Walt Disney"
+    text: "Power isn't determined by your size, but by the size of your heart and dreams!",
+    author: "Monkey D. Luffy (One Piece)"
   },
   {
-    text: "In the middle of every difficulty lies opportunity.",
-    author: "Albert Einstein"
+    text: "Whatever you lose, you'll find it again. But what you throw away you'll never get back.",
+    author: "Kenshin Himura (Rurouni Kenshin)"
+  },
+  {
+    text: "The only thing we're allowed to do is to believe that we won't regret the choice we made.",
+    author: "Levi Ackerman (Attack on Titan)"
+  },
+  {
+    text: "Giving up kills people. When people reject giving up... they finally win the right to transcend humanity.",
+    author: "Aiz Wallenstein (DanMachi)"
+  },
+  {
+    text: "I don't want to conquer anything. I just think that the guy with the most freedom in this whole ocean... that's the Pirate King!",
+    author: "Monkey D. Luffy (One Piece)"
+  },
+  {
+    text: "If you don't share someone's pain, you can never understand them.",
+    author: "Nagato (Naruto)"
+  },
+  {
+    text: "Sometimes I do feel like I'm a failure. Like there's no hope for me. But even so, I'm not gonna give up. Ever!",
+    author: "Izuku Midoriya (My Hero Academia)"
+  },
+  {
+    text: "A king without greed is no king at all.",
+    author: "Gilgamesh (Fate/Zero)"
+  },
+  {
+    text: "Become stronger than anyone else, then everyone will be safe from any kind of danger.",
+    author: "Sung Jin-Woo (Solo Leveling)"
+  },
+  {
+    text: "I'll never give up... even if I die.",
+    author: "Natsu Dragneel (Fairy Tail)"
+  },
+  {
+    text: "Nobody knows what the future holds. That's why its potential is infinite.",
+    author: "Rintarou Okabe (Steins;Gate)"
+  },
+  {
+    text: "It's not the face that makes someone a monster, it's the choices they make with their lives.",
+    author: "Naruto Uzumaki (Naruto)"
+  },
+  {
+    text: "If you're hungry, eat. Sleep when you're sleepy. And when you see the enemy, defeat them.",
+    author: "Yami Sukehiro (Black Clover)"
+  },
+  {
+    text: "I'll devour whatever stands in my way, even if it's a god.",
+    author: "Asta (Black Clover)"
+  },
+  {
+    text: "A goal is not always meant to be reached, it often serves simply as something to aim at.",
+    author: "Son Goku (Dragon Ball)"
+  },
+  {
+    text: "I'm going to surpass my limits right here and now!",
+    author: "Asta (Black Clover)"
+  },
+  {
+    text: "More than scoring and winning, I want to make each and every play shine.",
+    author: "Isagi Yoichi (Blue Lock)"
   }
 ];
 
