@@ -20,6 +20,8 @@ import MissionsPage from "./pages/MissionsPage";
 import ProgressPage from "./pages/ProgressPage";
 import ProjectsPage from "./pages/ProjectsPage";
 
+// We'll define the LoginPage component directly in this file for simplicity
+
 // Welcome page that redirects to dashboard if authenticated
 function WelcomePage() {
   const { isAuthenticated, isLoading } = useAuth();

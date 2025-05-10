@@ -37,12 +37,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["/api/user"],
     queryFn: async ({ signal }) => {
       try {
+        // Create an AbortController that we manage
+        const controller = new AbortController();
+        
+        // Create a timeout to prevent hanging requests
+        const timeout = setTimeout(() => {
+          controller.abort();
+        }, 5000); // 5 second timeout
+        
+        // Use our managed signal, not the one from React Query
         const response = await fetch("/api/user", {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          signal,
+          signal: controller.signal,
         });
+        
+        // Clear the timeout since we got a response
+        clearTimeout(timeout);
         
         console.log("User API response status:", response.status);
         
@@ -62,16 +74,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsAuthenticated(true);
         return userData;
       } catch (err) {
-        console.error("Error fetching user:", err);
-        if (err instanceof Error && err.name === "AbortError") {
-          console.log("Request was aborted");
+        // Specially handle AbortError to avoid React Query from retrying
+        if (err instanceof Error) {
+          if (err.name === "AbortError") {
+            console.log("Request was aborted (timeout or navigation)");
+            return null; // Return null instead of throwing to avoid unhandled rejection
+          }
         }
+        
+        console.error("Error fetching user:", err);
+        
+        // For other errors, we might want to retry
         throw err;
       }
     },
     retry: 1,
     retryDelay: 1000,
     refetchOnWindowFocus: false,
+    // Specify a stale time to reduce frequent refetching
+    staleTime: 30000, // 30 seconds
+    // Handle errors gracefully
+    gcTime: 60000, // 1 minute
   });
 
   // Log authentication state changes
