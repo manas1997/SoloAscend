@@ -10,7 +10,9 @@ function AuthPageContent() {
   
   // Redirect to dashboard if user is already authenticated
   useEffect(() => {
+    console.log("Auth page - user state:", { user, isLoading });
     if (user && !isLoading) {
+      console.log("User is authenticated, redirecting to dashboard");
       setLocation("/");
     }
   }, [user, isLoading, setLocation]);

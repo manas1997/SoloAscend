@@ -31,14 +31,15 @@ async function comparePasswords(supplied: string, stored: string) {
 export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "solo-ascend-dev-secret",
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     store: storage.sessionStore,
     cookie: {
       secure: false, // Allow non-HTTPS cookies in development
       httpOnly: true,
       sameSite: 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+      path: '/',
     }
   };
 

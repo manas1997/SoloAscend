@@ -19,7 +19,7 @@ type AuthContextType = {
 
 type LoginData = Pick<InsertUser, "username" | "password">;
 
-export const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
@@ -34,13 +34,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
+      console.log("Attempting login with username:", credentials.username);
       const res = await apiRequest("POST", "/api/login", credentials);
-      return await res.json();
+      const userData = await res.json();
+      console.log("Login successful, received user data:", userData);
+      return userData;
     },
     onSuccess: (user: User) => {
+      console.log("Setting user data in query cache:", user);
       queryClient.setQueryData(["/api/user"], user);
+      // Force refetch user data to ensure it's correctly stored
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
     },
     onError: (error: Error) => {
+      console.error("Login mutation error:", error);
       toast({
         title: "Login failed",
         description: error.message,
@@ -51,13 +58,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (credentials: InsertUser) => {
+      console.log("Attempting registration with username:", credentials.username);
       const res = await apiRequest("POST", "/api/register", credentials);
-      return await res.json();
+      const userData = await res.json();
+      console.log("Registration successful, received user data:", userData);
+      return userData;
     },
     onSuccess: (user: User) => {
+      console.log("Setting user data in query cache after registration:", user);
       queryClient.setQueryData(["/api/user"], user);
+      // Force refetch user data to ensure it's correctly stored
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
     },
     onError: (error: Error) => {
+      console.error("Registration mutation error:", error);
       toast({
         title: "Registration failed",
         description: error.message,

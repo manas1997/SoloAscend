@@ -54,53 +54,82 @@ export function AuthForm() {
   async function onLoginSubmit(data: LoginFormValues) {
     console.log('Login form submitted:', { username: data.username });
     
-    loginMutation.mutate({
-      username: data.username,
-      password: data.password
-    }, {
-      onSuccess: (userData) => {
-        console.log('Login successful:', userData);
-        toast({
-          title: "Login successful",
-          description: `Welcome back, ${userData.username}!`,
-        });
-      },
-      onError: (error) => {
-        console.error('Login error:', error);
-        toast({
-          title: "Login failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
-    });
+    try {
+      loginMutation.mutate({
+        username: data.username,
+        password: data.password
+      }, {
+        onSuccess: (userData) => {
+          console.log('Login successful:', userData);
+          
+          // Small delay to ensure React Query has time to update
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 500);
+          
+          toast({
+            title: "Login successful",
+            description: `Welcome back, ${userData.username}!`,
+          });
+        },
+        onError: (error) => {
+          console.error('Login error:', error);
+          toast({
+            title: "Login failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
+      });
+    } catch (error) {
+      console.error('Unexpected login error:', error);
+      toast({
+        title: "Login failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    }
   }
   
   async function onRegisterSubmit(data: RegisterFormValues) {
     console.log('Register form submitted:', { username: data.username, email: data.email });
     
-    registerMutation.mutate({
-      username: data.username,
-      email: data.email,
-      password: data.password,
-    }, {
-      onSuccess: (userData) => {
-        console.log('Registration successful:', userData);
-        toast({
-          title: "Account created",
-          description: "Your account has been created successfully. You are now logged in!",
-        });
-        // No need to switch to login tab since registration also logs the user in
-      },
-      onError: (error) => {
-        console.error('Registration error:', error);
-        toast({
-          title: "Registration failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
-    });
+    try {
+      registerMutation.mutate({
+        username: data.username,
+        email: data.email,
+        password: data.password,
+      }, {
+        onSuccess: (userData) => {
+          console.log('Registration successful:', userData);
+          
+          // Small delay to ensure React Query has time to update
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 500);
+          
+          toast({
+            title: "Account created",
+            description: "Your account has been created successfully. You are now logged in!",
+          });
+        },
+        onError: (error) => {
+          console.error('Registration error:', error);
+          toast({
+            title: "Registration failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
+      });
+    } catch (error) {
+      console.error('Unexpected registration error:', error);
+      toast({
+        title: "Registration failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    }
   }
   
   return (
