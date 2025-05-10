@@ -95,8 +95,8 @@ export function OnboardingForm() {
       
       // Add a short delay before redirecting to ensure toast is seen
       setTimeout(() => {
-        // Force a hard redirect to the dashboard
-        window.location.href = "/";
+        // Force a full page reload to the dashboard to clear any stale state
+        window.location.replace("/");
       }, 2000);
       
     } catch (error) {
