@@ -146,8 +146,8 @@ export function OnboardingForm() {
             </div>
             
             <CardFooter className="flex justify-end px-0 pt-4">
-              <Button type="submit" disabled={isLoading} className="w-full glow-effect">
-                {isLoading ? (
+              <Button type="submit" disabled={isSubmitting} className="w-full glow-effect">
+                {isSubmitting ? (
                   <div className="flex items-center justify-center">
                     <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                     <span className="ml-2">Setting up...</span>

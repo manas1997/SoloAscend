@@ -2,14 +2,14 @@ import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth'; // Updated to use the correct auth hook
 import { useMemo } from 'react';
 import { useProjects } from '@/hooks/useProjects';
 import { calculateGoalProgress } from '@/lib/missionEngine';
 
 export function Sidebar() {
   const [location] = useLocation();
-  const { user, signOut } = useAuth();
+  const { user, logoutMutation } = useAuth();
   const { mainProject } = useProjects();
   
   const navItems = [
@@ -200,7 +200,7 @@ export function Sidebar() {
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={signOut}
+              onClick={() => logoutMutation.mutate()}
               className="text-gray-400 hover:text-white"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
