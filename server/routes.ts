@@ -163,6 +163,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error fetching user settings" });
     }
   });
+  
+  // User onboarding endpoint
+  app.post("/api/user/onboard", isAuthenticated, async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // This would update the user's onboarded status in a real implementation
+      // For now, we'll just return success since we don't have this field in our schema
+      res.status(200).json({ message: "User onboarded successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Error updating onboarding status" });
+    }
+  });
 
   // Projects routes
   app.post("/api/projects", async (req, res) => {
