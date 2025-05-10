@@ -182,10 +182,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Projects routes
   app.post("/api/projects", async (req, res) => {
     try {
-      const projectData = insertProjectSchema.parse(req.body);
-      const project = await storage.createProject(projectData);
+      // Pre-process the data to handle date conversions
+      let projectData = { ...req.body };
+      
+      // Handle end_date conversion if it's a string
+      if (projectData.end_date && typeof projectData.end_date === 'string') {
+        try {
+          // Try to parse the date
+          projectData.end_date = new Date(projectData.end_date);
+        } catch (error) {
+          console.error("Date parsing error:", error);
+          return res.status(400).json({ message: "Invalid date format for end_date" });
+        }
+      }
+      
+      // Validate the data with the schema
+      const validatedData = insertProjectSchema.parse(projectData);
+      
+      // Create the project
+      const project = await storage.createProject(validatedData);
       res.status(201).json(project);
     } catch (error) {
+      console.error("Project creation error:", error);
       if (error instanceof z.ZodError) {
         res.status(400).json({ message: error.errors });
       } else {
