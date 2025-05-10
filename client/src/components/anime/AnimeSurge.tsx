@@ -71,8 +71,10 @@ export function AnimeSurge({ onComplete }: AnimeSurgeProps) {
   });
   
   // Use sample data for now, replace with actual data when API is ready
-  const availableReels: (AnimeReel | typeof SAMPLE_REELS[0])[] = reels || SAMPLE_REELS;
-  const currentReel = availableReels[currentReelIndex] as (AnimeReel | typeof SAMPLE_REELS[0]);
+  const availableReels: (AnimeReel | typeof SAMPLE_REELS[0])[] = (reels && reels.length > 0) ? reels : SAMPLE_REELS;
+  // Ensure the index is valid and provide a default reel if needed
+  const safeIndex = Math.min(currentReelIndex, availableReels.length - 1);
+  const currentReel = availableReels[safeIndex] || SAMPLE_REELS[0];
   
   // Toggle mute state
   const toggleMute = () => {
@@ -163,6 +165,8 @@ export function AnimeSurge({ onComplete }: AnimeSurgeProps) {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-4xl max-h-[90vh] p-0 gap-0 overflow-hidden bg-black text-white border-none">
+          <DialogTitle className="sr-only">Anime Surge: Motivational Clips</DialogTitle>
+          <DialogDescription className="sr-only">Get inspired with motivational anime scenes</DialogDescription>
           {isLoading ? (
             <div className="h-[80vh] flex items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />

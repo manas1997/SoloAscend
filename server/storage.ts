@@ -212,9 +212,17 @@ export class DatabaseStorage implements IStorage {
   
   async getAllAnimeReels(): Promise<AnimeReel[]> {
     try {
-      const reels = await db.select().from(anime_reels);
+      let reels: any[] = [];
       
-      // If database is empty, return sample data
+      try {
+        // Try to get reels from database
+        reels = await db.select().from(anime_reels);
+      } catch (dbError) {
+        console.error("Database error when fetching anime reels:", dbError);
+        // Continue with empty reels array - will use sample data
+      }
+      
+      // If database is empty or had error, return sample data
       if (reels.length === 0) {
         const sampleReels: AnimeReel[] = [
           {
@@ -280,8 +288,16 @@ export class DatabaseStorage implements IStorage {
   
   async getRandomAnimeReel(): Promise<AnimeReel | undefined> {
     try {
-      // First check for actual database entries
-      const [reel] = await db.select().from(anime_reels).orderBy(sql`RANDOM()`).limit(1);
+      let reel: AnimeReel | undefined = undefined;
+      
+      try {
+        // First check for actual database entries
+        const [dbReel] = await db.select().from(anime_reels).orderBy(sql`RANDOM()`).limit(1);
+        reel = dbReel;
+      } catch (dbError) {
+        console.error("Database error when fetching random anime reel:", dbError);
+        // Continue with reel undefined - will use sample data from getAllAnimeReels
+      }
       
       // If we found a reel in the database, return it
       if (reel) {
