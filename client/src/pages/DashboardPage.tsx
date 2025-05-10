@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Target, Clock, TrendingUp, Zap } from "lucide-react";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
+import { MotivationMeteor } from "@/components/motivation/MotivationMeteor";
 
 export default function DashboardPage() {
   const { user, isAuthenticated } = useAuth();
@@ -123,10 +124,7 @@ export default function DashboardPage() {
               <p className="mb-4 text-sm text-muted-foreground">
                 Sometimes we all need a little extra motivation. Get a quick dose of inspiration.
               </p>
-              <Button className="w-full">
-                <Zap className="mr-2 h-4 w-4" />
-                Motivation Meteorite
-              </Button>
+              <MotivationMeteor />
             </CardContent>
           </Card>
         </div>
