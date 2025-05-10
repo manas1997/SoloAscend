@@ -320,7 +320,7 @@ export class MemStorage implements IStorage {
 
   async createUser(userData: InsertUser): Promise<User> {
     const id = this.userIdCounter++;
-    const created_at = new Date().toISOString();
+    const created_at = new Date();
     const user: User = { ...userData, id, created_at, level: 1, onboarded: false };
     this.users.set(id, user);
     return user;
@@ -339,8 +339,15 @@ export class MemStorage implements IStorage {
 
   async createMission(missionData: InsertMission): Promise<Mission> {
     const id = this.missionIdCounter++;
-    const created_at = new Date().toISOString();
-    const mission: Mission = { ...missionData, id, created_at };
+    const created_at = new Date();
+    const mission: Mission = { 
+      ...missionData, 
+      id, 
+      created_at,
+      description: missionData.description || null,
+      project_id: missionData.project_id || null,
+      user_id: missionData.user_id || null
+    };
     this.missions.set(id, mission);
     return mission;
   }
@@ -358,8 +365,15 @@ export class MemStorage implements IStorage {
 
   async createProgress(progressData: InsertProgress): Promise<Progress> {
     const id = this.progressIdCounter++;
-    const date = new Date().toISOString();
-    const progress: Progress = { ...progressData, id, date };
+    const date = new Date();
+    const progress: Progress = { 
+      ...progressData, 
+      id, 
+      date,
+      mood: progressData.mood || null,
+      energy_level: progressData.energy_level || null,
+      notes: progressData.notes || null
+    };
     this.progressRecords.set(id, progress);
     return progress;
   }
@@ -402,7 +416,14 @@ export class MemStorage implements IStorage {
 
   async createUserSettings(settingsData: InsertUserSettings): Promise<UserSettings> {
     const id = this.settingsIdCounter++;
-    const settings: UserSettings = { ...settingsData, id };
+    const settings: UserSettings = { 
+      ...settingsData, 
+      id,
+      quote_frequency: settingsData.quote_frequency || null,
+      voice_volume: settingsData.voice_volume || null,
+      preferred_focus_hours: settingsData.preferred_focus_hours || null,
+      theme: settingsData.theme || null
+    };
     this.userSettings.set(id, settings);
     return settings;
   }
@@ -420,8 +441,15 @@ export class MemStorage implements IStorage {
 
   async createProject(projectData: InsertProject): Promise<Project> {
     const id = this.projectIdCounter++;
-    const start_date = projectData.start_date || new Date().toISOString();
-    const project: Project = { ...projectData, id, start_date };
+    const start_date = projectData.start_date ? new Date(projectData.start_date) : new Date();
+    const project: Project = { 
+      ...projectData, 
+      id, 
+      start_date,
+      description: projectData.description || null,
+      end_date: projectData.end_date ? new Date(projectData.end_date) : null,
+      status: projectData.status || "active",
+    };
     this.projectsList.set(id, project);
     return project;
   }
@@ -439,7 +467,13 @@ export class MemStorage implements IStorage {
 
   async createProjectTask(taskData: InsertProjectTask): Promise<ProjectTask> {
     const id = this.taskIdCounter++;
-    const task: ProjectTask = { ...taskData, id };
+    const task: ProjectTask = { 
+      ...taskData, 
+      id,
+      description: taskData.description || null,
+      status: taskData.status || "pending",
+      deadline: taskData.deadline ? new Date(taskData.deadline) : null
+    };
     this.projectTasks.set(id, task);
     return task;
   }
