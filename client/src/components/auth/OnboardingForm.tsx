@@ -47,13 +47,15 @@ export function OnboardingForm() {
           name: data.goal,
           description: `Target: $${parseInt(data.targetAmount).toLocaleString()} by ${data.targetDate}`,
           status: 'active',
-          end_date: `${data.targetDate}-01`,
+          end_date: new Date(`${data.targetDate}-01`).toISOString(),
           user_id: user.id,
         }),
       });
       
       if (!response.ok) {
-        throw new Error('Failed to create project');
+        const errorData = await response.json();
+        console.error('Project creation error:', errorData);
+        throw new Error(`Failed to create project: ${JSON.stringify(errorData)}`);
       }
       
       // Update user as onboarded
@@ -65,7 +67,9 @@ export function OnboardingForm() {
       });
       
       if (!userResponse.ok) {
-        throw new Error('Failed to update onboarding status');
+        const errorData = await userResponse.json();
+        console.error('Onboarding error:', errorData);
+        throw new Error(`Failed to update onboarding status: ${JSON.stringify(errorData)}`);
       }
       
       toast({
