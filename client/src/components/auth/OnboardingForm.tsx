@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -22,6 +22,15 @@ export function OnboardingForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+  
+  // If user is already onboarded (has existing data), redirect immediately
+  // This prevents the onboarding loop
+  useEffect(() => {
+    if (user && window.location.pathname !== '/') {
+      console.log("User already has data, redirecting to dashboard...");
+      window.location.href = '/';
+    }
+  }, [user]);
   
   const form = useForm<OnboardingFormValues>({
     resolver: zodResolver(onboardingSchema),
