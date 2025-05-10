@@ -55,39 +55,21 @@ const ProtectedSettings = () => (
   </MainLayout>
 );
 
-// Create an Auth wrapper component for the auth page
-const AuthPageRoute = () => {
-  return <AuthPage />;
-};
-
-// Create a separate component for protected routes
-const ProtectedRoutes = () => (
-  <AuthProvider>
-    <Switch>
-      <ProtectedRoute path="/" component={ProtectedDashboard} />
-      <ProtectedRoute path="/missions" component={ProtectedMissions} />
-      <ProtectedRoute path="/projects" component={ProtectedProjects} />
-      <ProtectedRoute path="/progress" component={ProtectedProgress} />
-      <ProtectedRoute path="/motivation" component={ProtectedMotivation} />
-      <ProtectedRoute path="/anime-surge" component={ProtectedAnimeSurge} />
-      <ProtectedRoute path="/settings" component={ProtectedSettings} />
-    </Switch>
-  </AuthProvider>
-);
-
 function App() {
   return (
-    <Switch>
-      <Route path="/auth">
-        <AuthPageRoute />
-      </Route>
-      <Route path="/:rest*">
-        <ProtectedRoutes />
-      </Route>
-      <Route path="*">
-        <NotFound />
-      </Route>
-    </Switch>
+    <AuthProvider>
+      <Switch>
+        <Route path="/auth" component={AuthPage} />
+        <ProtectedRoute path="/" component={ProtectedDashboard} />
+        <ProtectedRoute path="/missions" component={ProtectedMissions} />
+        <ProtectedRoute path="/projects" component={ProtectedProjects} />
+        <ProtectedRoute path="/progress" component={ProtectedProgress} />
+        <ProtectedRoute path="/motivation" component={ProtectedMotivation} />
+        <ProtectedRoute path="/anime-surge" component={ProtectedAnimeSurge} />
+        <ProtectedRoute path="/settings" component={ProtectedSettings} />
+        <Route component={NotFound} />
+      </Switch>
+    </AuthProvider>
   );
 }
 
