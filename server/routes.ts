@@ -10,7 +10,9 @@ import {
   insertUserSettingsSchema,
   insertProjectSchema,
   insertProjectTaskSchema,
-  insertAnimeReelSchema
+  insertAnimeReelSchema,
+  insertTaskTypeSchema,
+  insertUserTaskSchema
 } from "@shared/schema";
 import { setupAuth } from "./auth";
 
@@ -260,6 +262,149 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(500).json({ message: "Error creating anime reel" });
       }
+    }
+  });
+  
+  // Task Types routes
+  app.get("/api/task-types", async (req, res) => {
+    try {
+      const taskTypes = await storage.getAllTaskTypes();
+      res.json(taskTypes);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching task types" });
+    }
+  });
+  
+  app.get("/api/task-types/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const taskType = await storage.getTaskType(id);
+      
+      if (!taskType) {
+        return res.status(404).json({ message: "Task type not found" });
+      }
+      
+      res.json(taskType);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching task type" });
+    }
+  });
+  
+  app.post("/api/task-types", isAuthenticated, async (req, res) => {
+    try {
+      const taskTypeData = insertTaskTypeSchema.parse(req.body);
+      const taskType = await storage.createTaskType(taskTypeData);
+      res.status(201).json(taskType);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: error.errors });
+      } else {
+        res.status(500).json({ message: "Error creating task type" });
+      }
+    }
+  });
+  
+  // User Tasks routes
+  app.get("/api/user-tasks", isAuthenticated, async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      let date = undefined;
+      if (req.query.date) {
+        date = new Date(req.query.date as string);
+      }
+      
+      const tasks = await storage.getUserTasksByUserId(req.user.id, date);
+      res.json(tasks);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching user tasks" });
+    }
+  });
+  
+  app.post("/api/user-tasks", isAuthenticated, async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // Get existing tasks for today
+      const today = new Date();
+      const existingTasks = await storage.getUserTasksByUserId(req.user.id, today);
+      
+      // Check if user already has 5 tasks for today
+      if (existingTasks.length >= 5) {
+        return res.status(400).json({ 
+          message: "You already have 5 tasks selected for today. Please remove a task before adding a new one."
+        });
+      }
+      
+      const userTaskData = insertUserTaskSchema.parse({
+        ...req.body,
+        user_id: req.user.id
+      });
+      
+      const userTask = await storage.createUserTask(userTaskData);
+      res.status(201).json(userTask);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: error.errors });
+      } else {
+        res.status(500).json({ message: "Error creating user task" });
+      }
+    }
+  });
+  
+  app.patch("/api/user-tasks/:id/priority", isAuthenticated, async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const id = parseInt(req.params.id);
+      const { priority } = req.body;
+      
+      if (typeof priority !== 'number' || priority < 1 || priority > 5) {
+        return res.status(400).json({ message: "Priority must be a number between 1 and 5" });
+      }
+      
+      const updatedTask = await storage.updateUserTaskPriority(id, priority);
+      res.json(updatedTask);
+    } catch (error) {
+      res.status(500).json({ message: "Error updating task priority" });
+    }
+  });
+  
+  app.delete("/api/user-tasks/:id", isAuthenticated, async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const id = parseInt(req.params.id);
+      await storage.deleteUserTask(id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Error deleting user task" });
+    }
+  });
+  
+  app.delete("/api/user-tasks", isAuthenticated, async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      let date = undefined;
+      if (req.query.date) {
+        date = new Date(req.query.date as string);
+      }
+      
+      await storage.clearUserTasks(req.user.id, date);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Error clearing user tasks" });
     }
   });
 

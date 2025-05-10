@@ -76,8 +76,9 @@ export class DatabaseStorage implements IStorage {
       createTableIfMissing: true 
     });
     
-    // Seed quotes if they don't exist
+    // Seed initial data
     this.seedQuotesIfEmpty();
+    this.seedTaskTypesIfEmpty();
   }
 
   // User operations
@@ -221,6 +222,114 @@ export class DatabaseStorage implements IStorage {
   async createAnimeReel(reelData: InsertAnimeReel): Promise<AnimeReel> {
     const [reel] = await db.insert(anime_reels).values(reelData).returning();
     return reel;
+  }
+  
+  // Task Types operations
+  async getTaskType(id: number): Promise<TaskType | undefined> {
+    const [taskType] = await db.select().from(task_types).where(eq(task_types.id, id));
+    return taskType;
+  }
+  
+  async getAllTaskTypes(): Promise<TaskType[]> {
+    return await db.select().from(task_types);
+  }
+  
+  async createTaskType(taskTypeData: InsertTaskType): Promise<TaskType> {
+    const [taskType] = await db.insert(task_types).values(taskTypeData).returning();
+    return taskType;
+  }
+  
+  // User Tasks operations
+  async getUserTask(id: number): Promise<UserTask | undefined> {
+    const [userTask] = await db.select().from(user_tasks).where(eq(user_tasks.id, id));
+    return userTask;
+  }
+  
+  async getUserTasksByUserId(userId: number, date?: Date): Promise<UserTask[]> {
+    if (date) {
+      const formattedDate = date.toISOString().split('T')[0];
+      return await db.select().from(user_tasks)
+        .where(and(
+          eq(user_tasks.user_id, userId),
+          eq(sql`DATE(${user_tasks.task_date})`, sql`DATE(${formattedDate})`)
+        ))
+        .orderBy(user_tasks.priority);
+    }
+    
+    return await db.select().from(user_tasks)
+      .where(eq(user_tasks.user_id, userId))
+      .orderBy(user_tasks.priority);
+  }
+  
+  async createUserTask(userTaskData: InsertUserTask): Promise<UserTask> {
+    const [userTask] = await db.insert(user_tasks).values(userTaskData).returning();
+    return userTask;
+  }
+  
+  async updateUserTaskPriority(id: number, priority: number): Promise<UserTask> {
+    const [userTask] = await db
+      .update(user_tasks)
+      .set({ priority })
+      .where(eq(user_tasks.id, id))
+      .returning();
+    
+    if (!userTask) {
+      throw new Error("User task not found");
+    }
+    
+    return userTask;
+  }
+  
+  async deleteUserTask(id: number): Promise<void> {
+    await db.delete(user_tasks).where(eq(user_tasks.id, id));
+  }
+  
+  async clearUserTasks(userId: number, date?: Date): Promise<void> {
+    if (date) {
+      const formattedDate = date.toISOString().split('T')[0];
+      await db.delete(user_tasks)
+        .where(and(
+          eq(user_tasks.user_id, userId),
+          eq(sql`DATE(${user_tasks.task_date})`, sql`DATE(${formattedDate})`)
+        ));
+    } else {
+      await db.delete(user_tasks).where(eq(user_tasks.user_id, userId));
+    }
+  }
+  
+  // Seed task types if the task_types table is empty
+  private async seedTaskTypesIfEmpty() {
+    try {
+      const existingTaskTypes = await db.select().from(task_types).limit(1);
+      
+      if (existingTaskTypes.length === 0) {
+        const defaultTaskTypes = [
+          { name: "Workout", category: "Health", icon: "dumbbell" },
+          { name: "Running", category: "Health", icon: "running" },
+          { name: "Meditation", category: "Wellness", icon: "brain" },
+          { name: "Coding Practice", category: "Professional", icon: "code" },
+          { name: "Reading", category: "Personal", icon: "book" },
+          { name: "Learning", category: "Education", icon: "graduation-cap" },
+          { name: "Writing", category: "Professional", icon: "pen" },
+          { name: "Project Work", category: "Professional", icon: "briefcase" },
+          { name: "Language Study", category: "Education", icon: "language" },
+          { name: "Meal Prep", category: "Health", icon: "utensils" },
+          { name: "Family Time", category: "Personal", icon: "users" },
+          { name: "Networking", category: "Professional", icon: "handshake" },
+          { name: "Job Search", category: "Professional", icon: "search" },
+          { name: "Journaling", category: "Personal", icon: "book-open" },
+          { name: "Yoga", category: "Health", icon: "pray" }
+        ];
+        
+        for (const taskType of defaultTaskTypes) {
+          await this.createTaskType(taskType as InsertTaskType);
+        }
+      }
+    } catch (error) {
+      // Table doesn't exist yet - this is expected on first run
+      // Tables will be created when db:push is run
+      console.log("Task types table not found - skipping task types seeding until after schema push");
+    }
   }
 
   // Seed quotes if the quotes table is empty
@@ -533,16 +642,33 @@ export class MemStorage implements IStorage {
   
   // Task Types operations
   async getTaskType(id: number): Promise<TaskType | undefined> {
-    return this.taskTypes.get(id);
+    const taskType = this.taskTypes.get(id);
+    return taskType ? { 
+      ...taskType, 
+      description: taskType.description || null,
+      category: taskType.category || null,
+      icon: taskType.icon || null 
+    } : undefined;
   }
   
   async getAllTaskTypes(): Promise<TaskType[]> {
-    return Array.from(this.taskTypes.values());
+    return Array.from(this.taskTypes.values()).map(type => ({
+      ...type,
+      description: type.description || null,
+      category: type.category || null,
+      icon: type.icon || null
+    }));
   }
   
   async createTaskType(taskTypeData: InsertTaskType): Promise<TaskType> {
     const id = this.taskTypeIdCounter++;
-    const taskType: TaskType = { ...taskTypeData, id };
+    const taskType: TaskType = { 
+      ...taskTypeData, 
+      id,
+      description: taskTypeData.description || null,
+      category: taskTypeData.category || null,
+      icon: taskTypeData.icon || null
+    };
     this.taskTypes.set(id, taskType);
     return taskType;
   }
@@ -554,14 +680,17 @@ export class MemStorage implements IStorage {
   
   async getUserTasksByUserId(userId: number, date?: Date): Promise<UserTask[]> {
     const tasks = Array.from(this.userTasks.values()).filter(
-      (task) => task.user_id === userId
+      task => task.user_id === userId
     );
     
     if (date) {
       const dateString = date.toISOString().split('T')[0]; // Get YYYY-MM-DD format
-      return tasks.filter(
-        (task) => task.task_date.toISOString().split('T')[0] === dateString
-      );
+      return tasks.filter(task => {
+        if (task.task_date instanceof Date) {
+          return task.task_date.toISOString().split('T')[0] === dateString;
+        }
+        return false;
+      });
     }
     
     return tasks;
@@ -598,6 +727,33 @@ export class MemStorage implements IStorage {
     const tasks = await this.getUserTasksByUserId(userId, date);
     for (const task of tasks) {
       this.userTasks.delete(task.id);
+    }
+  }
+  
+  private seedTaskTypes() {
+    const defaultTaskTypes = [
+      { name: "Workout", category: "Health", icon: "dumbbell" },
+      { name: "Running", category: "Health", icon: "running" },
+      { name: "Meditation", category: "Wellness", icon: "brain" },
+      { name: "Coding Practice", category: "Professional", icon: "code" },
+      { name: "Reading", category: "Personal", icon: "book" },
+      { name: "Learning", category: "Education", icon: "graduation-cap" },
+      { name: "Writing", category: "Professional", icon: "pen" },
+      { name: "Project Work", category: "Professional", icon: "briefcase" },
+      { name: "Language Study", category: "Education", icon: "language" },
+      { name: "Meal Prep", category: "Health", icon: "utensils" },
+      { name: "Family Time", category: "Personal", icon: "users" },
+      { name: "Networking", category: "Professional", icon: "handshake" },
+      { name: "Job Search", category: "Professional", icon: "search" },
+      { name: "Journaling", category: "Personal", icon: "book-open" },
+      { name: "Yoga", category: "Health", icon: "pray" }
+    ];
+    
+    // Check if we already have task types
+    if (this.taskTypes.size === 0) {
+      defaultTaskTypes.forEach(task => {
+        this.createTaskType(task);
+      });
     }
   }
 
