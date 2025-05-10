@@ -43,6 +43,12 @@ export interface IStorage {
   getProjectTask(id: number): Promise<ProjectTask | undefined>;
   getTasksByProjectId(projectId: number): Promise<ProjectTask[]>;
   createProjectTask(task: InsertProjectTask): Promise<ProjectTask>;
+  
+  // Anime Reels operations
+  getAnimeReel(id: number): Promise<AnimeReel | undefined>;
+  getAllAnimeReels(): Promise<AnimeReel[]>;
+  getRandomAnimeReel(): Promise<AnimeReel | undefined>;
+  createAnimeReel(reel: InsertAnimeReel): Promise<AnimeReel>;
 
   // Session store
   sessionStore: session.Store;

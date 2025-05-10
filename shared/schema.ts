@@ -78,6 +78,17 @@ export const project_tasks = pgTable("project_tasks", {
   deadline: timestamp("deadline"),
 });
 
+// Anime Reels for motivation
+export const anime_reels = pgTable("anime_reels", {
+  id: serial("id").primaryKey(),
+  video_url: text("video_url").notNull(),
+  thumbnail_url: text("thumbnail_url").notNull(),
+  quote: text("quote").notNull(),
+  character: text("character").notNull(),
+  source_account: text("source_account").notNull(),
+  date_added: timestamp("date_added").defaultNow(),
+});
+
 // Schema validations for insert operations
 export const insertUserSchema = createInsertSchema(users).omit({ 
   id: true, 
@@ -113,6 +124,11 @@ export const insertProjectTaskSchema = createInsertSchema(project_tasks).omit({
   id: true 
 });
 
+export const insertAnimeReelSchema = createInsertSchema(anime_reels).omit({ 
+  id: true,
+  date_added: true
+});
+
 // Types for use throughout the application
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -134,3 +150,6 @@ export type InsertProject = z.infer<typeof insertProjectSchema>;
 
 export type ProjectTask = typeof project_tasks.$inferSelect;
 export type InsertProjectTask = z.infer<typeof insertProjectTaskSchema>;
+
+export type AnimeReel = typeof anime_reels.$inferSelect;
+export type InsertAnimeReel = z.infer<typeof insertAnimeReelSchema>;

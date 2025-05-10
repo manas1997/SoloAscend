@@ -1,0 +1,50 @@
+Build a self-contained module called **Anime Surge** inside my SoloAscend productivity app.
+
+🧠 Purpose:
+Show short anime-themed motivational reels with music and quotes from public Instagram accounts (no login required) to boost motivation when user taps "Need Motivation."
+
+📌 Requirements:
+
+1. **Tech Stack**  
+   - You choose the most suitable and modern stack (frontend + backend + DB + storage)  
+   - Must run in Replit smoothly  
+   - Use built-in tools like Supabase, Firebase, or Replit DB for storage  
+   - Auto-deploy and test the whole module to ensure it's error-free and fully functional
+
+2. **Core Features**  
+   - A page or component called `AnimeSurge`
+   - On page load: fetch all anime reels (video + thumbnail + quote)
+   - Each reel has:
+     - Video autoplay
+     - Motivational quote text overlay
+     - Character name (e.g. Gojo, Sung Jin-Woo)
+     - Source Instagram handle (must be public)
+   - "Need Motivation" button → randomly open one reel in full screen
+   - Reels can loop and should be optimized for mobile and desktop
+
+3. **Backend & Storage**
+   - Create a DB/table called `anime_reels` with the following fields:
+     - `video_url`, `thumbnail_url`, `quote`, `character`, `source_account`, `date_added`
+   - Store videos in a CDN or storage service (your choice)
+   - Allow safe upload via form (admin side optional)
+
+4. **Visuals & Style**
+   - Dark theme with glowing, neon Solo Leveling-style UI
+   - Add smooth transitions and motivational vibe
+
+5. **Stability**
+   - Handle loading/error states gracefully
+   - Validate all data and links
+   - Ensure all Supabase/DB/storage queries are clean, efficient, and fail-safe
+   - Add error logging and loading UI states
+
+6. **Testing**
+   - Test the module thoroughly for bugs
+   - Automatically validate that:
+     - Videos load and play
+     - Quotes render
+     - Random full-screen modal works
+     - DB fetches successfully
+   - Resolve and highlight any errors before showing final output
+
+Deploy the **Anime Surge** module as part of my existing SoloAscend project. Output tested and running code.
