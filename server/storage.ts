@@ -701,11 +701,13 @@ export class MemStorage implements IStorage {
   async createUserTask(userTaskData: InsertUserTask): Promise<UserTask> {
     const id = this.userTaskIdCounter++;
     const now = new Date();
-    const task_date = now.toISOString();
+    const task_date = now; // This will be handled properly by Drizzle's date type
+    const priority = userTaskData.priority || 5; // Default priority to 5 if not provided
     const userTask: UserTask = { 
       ...userTaskData, 
       id, 
-      task_date
+      task_date,
+      priority
     };
     this.userTasks.set(id, userTask);
     return userTask;
