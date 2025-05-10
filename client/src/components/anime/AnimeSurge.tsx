@@ -97,11 +97,29 @@ export function AnimeSurge({ onComplete }: AnimeSurgeProps) {
     );
   };
   
+  // Fetch a random reel
+  const { refetch: refetchRandom } = useQuery({
+    queryKey: ["/api/anime-reels/random"],
+    enabled: false, // Don't fetch on component mount
+  });
+  
   // Show the Anime Surge dialog
   const showAnimeSurge = () => {
     setOpen(true);
     setCurrentReelIndex(Math.floor(Math.random() * (SAMPLE_REELS.length || 1)));
     setIsMuted(true);
+  };
+  
+  // Load a random reel
+  const loadRandomReel = async () => {
+    try {
+      await refetchRandom();
+      // Random reel loaded successfully - could use this to set current reel
+      // For now, we'll just use the random index approach
+      setCurrentReelIndex(Math.floor(Math.random() * (availableReels.length || 1)));
+    } catch (error) {
+      console.error("Failed to load random reel:", error);
+    }
   };
   
   // Reset video and mute state when reel changes
@@ -188,8 +206,18 @@ export function AnimeSurge({ onComplete }: AnimeSurgeProps) {
                     <Button 
                       variant="ghost" 
                       size="icon" 
+                      onClick={loadRandomReel}
+                      className="text-white hover:bg-white/20"
+                      title="Load random clip"
+                    >
+                      <Flame className="h-5 w-5" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
                       onClick={toggleMute}
                       className="text-white hover:bg-white/20"
+                      title={isMuted ? "Unmute" : "Mute"}
                     >
                       {isMuted ? (
                         <VolumeX className="h-5 w-5" />
@@ -202,6 +230,7 @@ export function AnimeSurge({ onComplete }: AnimeSurgeProps) {
                       size="icon"
                       onClick={handleClose}
                       className="text-white hover:bg-white/20"
+                      title="Close"
                     >
                       <X className="h-5 w-5" />
                     </Button>

@@ -211,12 +211,90 @@ export class DatabaseStorage implements IStorage {
   }
   
   async getAllAnimeReels(): Promise<AnimeReel[]> {
-    return await db.select().from(anime_reels);
+    try {
+      const reels = await db.select().from(anime_reels);
+      
+      // If database is empty, return sample data
+      if (reels.length === 0) {
+        return [
+          {
+            id: 1,
+            video_url: "https://assets.mixkit.co/videos/preview/mixkit-white-dog-sitting-on-the-wooden-floor-1547-large.mp4",
+            thumbnail_url: "https://via.placeholder.com/300x200",
+            quote: "The difference between the novice and the master is that the master has failed more times than the novice has even tried.",
+            character: "Itachi Uchiha",
+            source_account: "@anime_motivation",
+            anime_source: "Naruto",
+            date_added: new Date()
+          },
+          {
+            id: 2,
+            video_url: "https://assets.mixkit.co/videos/preview/mixkit-man-holding-neon-light-1238-large.mp4",
+            thumbnail_url: "https://via.placeholder.com/300x200",
+            quote: "The moment you think of giving up, think of the reason why you held on so long.",
+            character: "Natsu Dragneel",
+            source_account: "@anime_quotes",
+            anime_source: "Fairy Tail",
+            date_added: new Date()
+          },
+          {
+            id: 3,
+            video_url: "https://assets.mixkit.co/videos/preview/mixkit-close-up-view-of-a-turning-galaxy-view-inside-space-31764-large.mp4",
+            thumbnail_url: "https://via.placeholder.com/300x200",
+            quote: "I'll become stronger than anyone else, so everyone will be safe from any kind of danger.",
+            character: "Sung Jin-Woo",
+            source_account: "@solo_leveling_official",
+            anime_source: "Solo Leveling",
+            date_added: new Date()
+          },
+          {
+            id: 4,
+            video_url: "https://assets.mixkit.co/videos/preview/mixkit-lights-in-the-city-at-night-time-lapse-1826-large.mp4",
+            thumbnail_url: "https://via.placeholder.com/300x200",
+            quote: "If you don't like your destiny, don't accept it. Instead, have the courage to change it the way you want it to be.",
+            character: "Naruto Uzumaki",
+            source_account: "@naruto_quotes",
+            anime_source: "Naruto",
+            date_added: new Date()
+          },
+          {
+            id: 5,
+            video_url: "https://assets.mixkit.co/videos/preview/mixkit-person-running-on-a-track-in-front-of-a-sunset-40327-large.mp4",
+            thumbnail_url: "https://via.placeholder.com/300x200",
+            quote: "Push past your limits. Right here, right now!",
+            character: "Yami Sukehiro",
+            source_account: "@black_clover_quotes",
+            anime_source: "Black Clover",
+            date_added: new Date()
+          }
+        ];
+      }
+      
+      return reels;
+    } catch (error) {
+      console.error("Error fetching anime reels:", error);
+      return []; // Return empty array on error
+    }
   }
   
   async getRandomAnimeReel(): Promise<AnimeReel | undefined> {
-    const [reel] = await db.select().from(anime_reels).orderBy(sql`RANDOM()`).limit(1);
-    return reel;
+    try {
+      const [reel] = await db.select().from(anime_reels).orderBy(sql`RANDOM()`).limit(1);
+      
+      // If no reels in database, return a random sample
+      if (!reel) {
+        const sampleReels = await this.getAllAnimeReels(); // Uses our fallback data
+        if (sampleReels.length > 0) {
+          const randomIndex = Math.floor(Math.random() * sampleReels.length);
+          return sampleReels[randomIndex];
+        }
+      }
+      
+      return reel;
+    } catch (error) {
+      console.error("Error fetching random anime reel:", error);
+      return undefined;
+    }
   }
   
   async createAnimeReel(reelData: InsertAnimeReel): Promise<AnimeReel> {

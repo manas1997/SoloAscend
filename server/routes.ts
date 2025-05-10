@@ -360,6 +360,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Get a random anime reel
+  app.get("/api/anime-reels/random", async (req, res) => {
+    try {
+      const reel = await storage.getRandomAnimeReel();
+      if (!reel) {
+        return res.status(404).json({ message: "No anime reels found" });
+      }
+      res.json(reel);
+    } catch (error) {
+      console.error("Failed to fetch random anime reel:", error);
+      res.status(500).json({ message: "Error fetching random anime reel" });
+    }
+  });
+  
   app.post("/api/anime-reels", async (req, res) => {
     try {
       const reelData = insertAnimeReelSchema.parse(req.body);
