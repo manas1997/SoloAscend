@@ -67,14 +67,14 @@ export function AnimeSurge({ onComplete }: AnimeSurgeProps) {
   // Fetch anime reels from the API
   const { data: reels, isLoading, error } = useQuery<AnimeReel[]>({
     queryKey: ["/api/anime-reels"],
-    enabled: open, // Only fetch when dialog is opened
+    enabled: true, // Always fetch to ensure data is available
   });
   
   // Use sample data for now, replace with actual data when API is ready
-  const availableReels: (AnimeReel | typeof SAMPLE_REELS[0])[] = (reels && reels.length > 0) ? reels : SAMPLE_REELS;
+  const availableReels: AnimeReel[] = reels || [];
   // Ensure the index is valid and provide a default reel if needed
-  const safeIndex = Math.min(currentReelIndex, availableReels.length - 1);
-  const currentReel = availableReels[safeIndex] || SAMPLE_REELS[0];
+  const safeIndex = availableReels.length > 0 ? Math.min(currentReelIndex, availableReels.length - 1) : 0;
+  const currentReel = availableReels.length > 0 ? availableReels[safeIndex] : null;
   
   // Toggle mute state
   const toggleMute = () => {
@@ -172,10 +172,11 @@ export function AnimeSurge({ onComplete }: AnimeSurgeProps) {
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <span className="ml-2">Loading motivational content...</span>
             </div>
-          ) : error ? (
+          ) : error || !currentReel ? (
             <div className="h-[80vh] flex flex-col items-center justify-center p-4">
               <p className="text-center mb-4">
-                Failed to load motivational content. Please try again later.
+                {error ? "Failed to load motivational content. Please try again later." : 
+                "No motivational content available right now. Please try again later."}
               </p>
               <Button onClick={handleClose}>Close</Button>
             </div>
@@ -190,35 +191,39 @@ export function AnimeSurge({ onComplete }: AnimeSurgeProps) {
                 className="relative h-full w-full"
               >
                 <div className="absolute inset-0 flex items-center justify-center bg-black">
-                  <video 
-                    ref={videoRef}
-                    autoPlay 
-                    loop 
-                    muted={isMuted}
-                    playsInline
-                    className="w-full h-[80vh] object-cover"
-                  >
-                    <source src={currentReel.video_url} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                  
-                  {/* Quote overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
-                    <blockquote className="text-xl md:text-2xl font-bold italic">
-                      "{currentReel.quote}"
-                    </blockquote>
-                    <p className="mt-2 text-sm md:text-base text-white/80">
-                      — {currentReel.character}
-                    </p>
-                    <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
-                      <p className="text-xs text-white/60">
-                        {currentReel.anime_source || "Anime"}
-                      </p>
-                      <p className="text-xs text-white/60">
-                        Via {currentReel.source_account}
-                      </p>
-                    </div>
-                  </div>
+                  {currentReel && (
+                    <>
+                      <video 
+                        ref={videoRef}
+                        autoPlay 
+                        loop 
+                        muted={isMuted}
+                        playsInline
+                        className="w-full h-[80vh] object-cover"
+                      >
+                        <source src={currentReel.video_url} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                      
+                      {/* Quote overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+                        <blockquote className="text-xl md:text-2xl font-bold italic">
+                          "{currentReel.quote}"
+                        </blockquote>
+                        <p className="mt-2 text-sm md:text-base text-white/80">
+                          — {currentReel.character}
+                        </p>
+                        <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
+                          <p className="text-xs text-white/60">
+                            {currentReel.anime_source || "Anime"}
+                          </p>
+                          <p className="text-xs text-white/60">
+                            Via {currentReel.source_account}
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  )}
                   
                   {/* Controls */}
                   <div className="absolute top-4 right-4 flex space-x-2">
