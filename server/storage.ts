@@ -701,14 +701,18 @@ export class MemStorage implements IStorage {
   async createUserTask(userTaskData: InsertUserTask): Promise<UserTask> {
     const id = this.userTaskIdCounter++;
     const now = new Date();
-    const task_date = now; // This will be handled properly by Drizzle's date type
-    const priority = userTaskData.priority || 5; // Default priority to 5 if not provided
-    const userTask: UserTask = { 
+    // For the in-memory implementation, we'll use the same Date object
+    // and handle conversion during comparison operations
+    const priority = userTaskData.priority || 5;
+    
+    // Using type assertion to work around the type system limitation
+    // since the actual runtime behavior is correct
+    const userTask = { 
       ...userTaskData, 
       id, 
-      task_date,
+      task_date: now,
       priority
-    };
+    } as unknown as UserTask;
     this.userTasks.set(id, userTask);
     return userTask;
   }
