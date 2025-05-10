@@ -77,16 +77,24 @@ export function OnboardingForm() {
         description: "Your journey to becoming a billionaire begins now.",
       });
       
-      // Refresh the page to load the dashboard with onboarded status
-      window.location.reload();
+      console.log("Onboarding successful, redirecting to dashboard...");
+      
+      // Add a short delay before redirecting to ensure toast is seen
+      setTimeout(() => {
+        // Force a hard redirect to the dashboard
+        window.location.href = "/";
+      }, 1500);
       
     } catch (error) {
+      console.error("Onboarding error:", error);
+      
       toast({
         title: "Onboarding failed",
         description: error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       });
-    } finally {
+      
+      // Enable form again after error
       setIsSubmitting(false);
     }
   }
