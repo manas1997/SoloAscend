@@ -2,6 +2,7 @@ import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
+import { randomBytes } from "crypto";
 import {
   insertUserSchema,
   insertMissionSchema,
@@ -14,11 +15,59 @@ import {
   insertTaskTypeSchema,
   insertUserTaskSchema
 } from "@shared/schema";
-import { setupAuth } from "./auth";
+import { setupAuth, hashPassword } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication with Passport
   setupAuth(app);
+
+  // Add main /api/user endpoint for both classic and Replit authentication
+  app.get("/api/user", async (req, res) => {
+    try {
+      // First check traditional Passport authentication
+      if (req.isAuthenticated() && req.user) {
+        console.log("User authenticated via session:", req.user);
+        return res.json(req.user);
+      }
+
+      // Then check for Replit Auth headers
+      const replitUserId = req.headers['x-replit-user-id'];
+      const replitUsername = req.headers['x-replit-user-name'] as string;
+      
+      if (replitUserId) {
+        console.log(`User authenticated via Replit Auth: User ID ${replitUserId}, Username ${replitUsername}`);
+        
+        // Try to find an existing user with this Replit user ID
+        let user = await storage.getUserByUsername(replitUsername);
+        
+        if (!user) {
+          // Create a new user record for this Replit user
+          console.log("Creating new user record for Replit user:", replitUsername);
+          const newUser = {
+            username: replitUsername,
+            email: `${replitUsername}@replit.user`,
+            password: await hashPassword(randomBytes(16).toString('hex')), // Random secure password
+            level: 1,
+            created_at: new Date(),
+            updated_at: new Date()
+          };
+          
+          user = await storage.createUser(newUser);
+        }
+        
+        return res.json(user);
+      }
+      
+      // No authentication found
+      return res.status(401).json({ message: "Unauthorized" });
+    } catch (error) {
+      console.error("Error in /api/user endpoint:", error);
+      res.status(500).json({ 
+        message: "Error processing user authentication",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
 
   // Middleware to check if user is authenticated using Replit Auth
   const isAuthenticated = (req: Request, res: any, next: any) => {
