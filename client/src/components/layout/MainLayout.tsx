@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { MobileNavbar } from './MobileNavbar';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth'; // Updated to use the correct auth hook
 import { OnboardingForm } from '../auth/OnboardingForm';
 
 interface MainLayoutProps {

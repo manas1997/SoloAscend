@@ -22,6 +22,8 @@ export async function apiRequest(
   // Make sure URL is absolute for Replit environment
   const fullUrl = url.startsWith('http') ? url : `${getBaseUrl()}${url}`;
   
+  console.log(`Making ${method} request to ${fullUrl}`, data ? { data } : '');
+  
   const res = await fetch(fullUrl, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
@@ -29,6 +31,11 @@ export async function apiRequest(
     credentials: "include",
   });
 
+  console.log(`Response from ${fullUrl}:`, res.status, res.statusText);
+  
+  // For debugging in development: log all cookies
+  console.log('Document cookies:', document.cookie);
+  
   await throwIfResNotOk(res);
   return res;
 }
@@ -43,11 +50,18 @@ export const getQueryFn: <T>(options: {
     const url = queryKey[0] as string;
     const fullUrl = url.startsWith('http') ? url : `${getBaseUrl()}${url}`;
     
+    // Add additional logging during development
+    console.log(`Fetching from ${fullUrl} with credentials`);
+    
     const res = await fetch(fullUrl, {
       credentials: "include",
+      headers: {
+        "Accept": "application/json",
+      },
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+      console.log("Request returned 401, returning null as per configuration");
       return null;
     }
 

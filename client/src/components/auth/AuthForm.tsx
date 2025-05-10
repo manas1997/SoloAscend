@@ -52,20 +52,53 @@ export function AuthForm() {
   });
   
   async function onLoginSubmit(data: LoginFormValues) {
+    console.log('Login form submitted:', { username: data.username });
+    
     loginMutation.mutate({
       username: data.username,
       password: data.password
+    }, {
+      onSuccess: (userData) => {
+        console.log('Login successful:', userData);
+        toast({
+          title: "Login successful",
+          description: `Welcome back, ${userData.username}!`,
+        });
+      },
+      onError: (error) => {
+        console.error('Login error:', error);
+        toast({
+          title: "Login failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     });
   }
   
   async function onRegisterSubmit(data: RegisterFormValues) {
+    console.log('Register form submitted:', { username: data.username, email: data.email });
+    
     registerMutation.mutate({
       username: data.username,
       email: data.email,
       password: data.password,
     }, {
-      onSuccess: () => {
-        setActiveTab('login');
+      onSuccess: (userData) => {
+        console.log('Registration successful:', userData);
+        toast({
+          title: "Account created",
+          description: "Your account has been created successfully. You are now logged in!",
+        });
+        // No need to switch to login tab since registration also logs the user in
+      },
+      onError: (error) => {
+        console.error('Registration error:', error);
+        toast({
+          title: "Registration failed",
+          description: error.message,
+          variant: "destructive",
+        });
       }
     });
   }
