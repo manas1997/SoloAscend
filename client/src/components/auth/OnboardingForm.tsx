@@ -88,16 +88,27 @@ export function OnboardingForm() {
       
       console.log("Onboarding successful, redirecting to dashboard...");
       
-      // Display a visible message for the user
-      const successElement = document.createElement('div');
-      successElement.innerHTML = '<div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 9999;"><div style="background: white; padding: 2rem; border-radius: 0.5rem; text-align: center;"><h2 style="margin-bottom: 1rem; color: #10b981;">Onboarding Complete!</h2><p style="margin-bottom: 1rem;">Your journey begins now. Redirecting to dashboard...</p><div style="height: 4px; width: 100%; background: #e5e7eb; overflow: hidden;"><div style="height: 100%; width: 0; background: #10b981; animation: progress 1.5s linear forwards;"></div></div></div></div><style>@keyframes progress { 0% { width: 0; } 100% { width: 100%; }}</style>';
-      document.body.appendChild(successElement);
+      // Display success message directly
+      toast({
+        title: "Success!",
+        description: "Onboarding complete! Redirecting to dashboard...",
+      });
       
-      // Add a short delay before redirecting to ensure toast is seen
+      console.log("Forcing hard reset to dashboard");
+      
+      // Force an immediate, complete page reset
       setTimeout(() => {
-        // Force a full page reload to the dashboard to clear any stale state
-        window.location.replace("/");
-      }, 2000);
+        // Use the most aggressive approach to force a clean page load
+        document.cookie = "loggedIn=true; path=/"; // Set a cookie to help with persistence
+        console.log("Navigation initiated");
+        
+        // Create a form that posts to the root url to force a complete reset
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/';
+        document.body.appendChild(form);
+        form.submit();
+      }, 1000);
       
     } catch (error) {
       console.error("Onboarding error:", error);

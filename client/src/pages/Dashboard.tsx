@@ -5,6 +5,12 @@ import { format } from "date-fns";
 export default function Dashboard() {
   const { user, isLoading } = useAuth();
   
+  console.log("Dashboard rendering - User:", user, "Loading:", isLoading);
+  
+  // Check for login cookie set during onboarding redirect
+  const hasLoggedInCookie = document.cookie.includes('loggedIn=true');
+  console.log("Has logged in cookie:", hasLoggedInCookie);
+  
   // Calculate journey day (days since registration)
   const calculateJourneyDay = () => {
     if (!user) return 0;
@@ -18,13 +24,28 @@ export default function Dashboard() {
     return diffDays;
   };
   
-  // Show loading state if user data is still loading
-  if (isLoading) {
+  // If we're loading or we have the login cookie, show the loading state
+  if (isLoading || hasLoggedInCookie) {
+    // If we've been loading for too long with the cookie, try forcing a refresh
+    if (hasLoggedInCookie) {
+      setTimeout(() => {
+        // Clear the cookie after 2 seconds to prevent infinite loop
+        document.cookie = "loggedIn=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        
+        // If we still don't have user data after 2 seconds, try one more reload
+        if (!user && !isLoading) {
+          console.log("No user data after timeout, forcing refresh");
+          window.location.reload();
+        }
+      }, 2000);
+    }
+    
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mb-4"></div>
           <p className="text-muted-foreground">Loading your dashboard...</p>
+          <p className="mt-2 text-xs text-muted-foreground">If this takes too long, try refreshing the page.</p>
         </div>
       </div>
     );
@@ -32,6 +53,13 @@ export default function Dashboard() {
   
   // Handle no user case
   if (!user) {
+    console.error("No user data available for dashboard");
+    
+    // Force a refresh or redirect back to auth
+    setTimeout(() => {
+      window.location.href = "/auth";
+    }, 100);
+    
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center p-6 max-w-md">

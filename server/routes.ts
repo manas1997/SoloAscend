@@ -20,6 +20,11 @@ import { setupAuth, hashPassword } from "./auth";
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication with Passport
   setupAuth(app);
+  
+  // Special handler for the root POST request to ensure we always return the SPA
+  app.post("/", (req, res) => {
+    res.redirect('/');
+  });
 
   // Add main /api/user endpoint for both classic and Replit authentication
   app.get("/api/user", async (req, res) => {
