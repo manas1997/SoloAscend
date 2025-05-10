@@ -7,6 +7,7 @@ import ProgressPage from "@/pages/ProgressPage";
 import MotivationPage from "@/pages/MotivationPage";
 import AnimeSurgePage from "@/pages/AnimeSurgePage";
 import SettingsPage from "@/pages/SettingsPage";
+import SelectTopTasks from "@/pages/SelectTopTasks";
 import AuthPage from "@/pages/auth-page";
 import { MainLayout } from "./components/layout/MainLayout";
 import { ProtectedRoute } from "./lib/protected-route";
@@ -55,6 +56,12 @@ const ProtectedSettings = () => (
   </MainLayout>
 );
 
+const ProtectedSelectTopTasks = () => (
+  <MainLayout>
+    <SelectTopTasks />
+  </MainLayout>
+);
+
 function App() {
   return (
     <AuthProvider>
@@ -67,6 +74,7 @@ function App() {
         <ProtectedRoute path="/motivation" component={ProtectedMotivation} />
         <ProtectedRoute path="/anime-surge" component={ProtectedAnimeSurge} />
         <ProtectedRoute path="/settings" component={ProtectedSettings} />
+        <ProtectedRoute path="/select-tasks" component={ProtectedSelectTopTasks} />
         <Route component={NotFound} />
       </Switch>
     </AuthProvider>
