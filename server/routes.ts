@@ -20,11 +20,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication with Passport
   setupAuth(app);
 
-  // Middleware to check if user is authenticated
+  // Middleware to check if user is authenticated using Replit Auth
   const isAuthenticated = (req: Request, res: any, next: any) => {
+    // First check traditional Passport session (for backward compatibility)
     if (req.isAuthenticated()) {
       return next();
     }
+
+    // Then check for Replit Auth headers
+    const userId = req.headers['x-replit-user-id'];
+    const username = req.headers['x-replit-user-name'];
+    
+    if (userId) {
+      console.log(`Authenticated via Replit Auth: User ID ${userId}, Username ${username}`);
+      return next();
+    }
+    
     res.status(401).json({ message: "Unauthorized" });
   };
   // Users routes
