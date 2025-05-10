@@ -8,8 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth'; // Updated to use the correct auth hook
 
 const onboardingSchema = z.object({
   goal: z.string().min(10, { message: 'Please enter a meaningful goal' }),
@@ -20,9 +19,9 @@ const onboardingSchema = z.object({
 type OnboardingFormValues = z.infer<typeof onboardingSchema>;
 
 export function OnboardingForm() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const { user, updateUserProfile } = useAuth();
+  const { user } = useAuth();
   
   const form = useForm<OnboardingFormValues>({
     resolver: zodResolver(onboardingSchema),
@@ -36,36 +35,47 @@ export function OnboardingForm() {
   async function onSubmit(data: OnboardingFormValues) {
     if (!user) return;
     
-    setIsLoading(true);
+    setIsSubmitting(true);
     try {
-      // Create the main project for the goal
-      const { data: project, error: projectError } = await supabase
-        .from('projects')
-        .insert({
+      // Create the project using the API
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           name: data.goal,
           description: `Target: $${parseInt(data.targetAmount).toLocaleString()} by ${data.targetDate}`,
           status: 'active',
-          end_date: new Date(`${data.targetDate}-01`).toISOString(),
+          end_date: `${data.targetDate}-01`,
           user_id: user.id,
-        })
-        .select()
-        .single();
+        }),
+      });
       
-      if (projectError) throw projectError;
+      if (!response.ok) {
+        throw new Error('Failed to create project');
+      }
       
       // Update user as onboarded
-      await supabase
-        .from('users')
-        .update({ onboarded: true })
-        .eq('id', user.id);
+      const userResponse = await fetch('/api/user/onboard', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
       
-      // Update user context
-      updateUserProfile({ ...user, onboarded: true });
+      if (!userResponse.ok) {
+        throw new Error('Failed to update onboarding status');
+      }
       
       toast({
         title: "Onboarding complete!",
         description: "Your journey to becoming a billionaire begins now.",
       });
+      
+      // Refresh the page to load the dashboard with onboarded status
+      window.location.reload();
+      
     } catch (error) {
       toast({
         title: "Onboarding failed",
@@ -73,7 +83,7 @@ export function OnboardingForm() {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   }
   

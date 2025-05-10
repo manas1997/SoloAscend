@@ -9,7 +9,7 @@ interface MainLayoutProps {
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   
   const toggleMobileMenu = () => {
@@ -31,7 +31,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     };
   }, [showMobileMenu]);
   
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-primary loading-aura"></div>
