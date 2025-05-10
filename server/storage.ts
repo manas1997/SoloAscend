@@ -216,7 +216,7 @@ export class DatabaseStorage implements IStorage {
       
       // If database is empty, return sample data
       if (reels.length === 0) {
-        return [
+        const sampleReels: AnimeReel[] = [
           {
             id: 1,
             video_url: "https://assets.mixkit.co/videos/preview/mixkit-white-dog-sitting-on-the-wooden-floor-1547-large.mp4",
@@ -268,6 +268,7 @@ export class DatabaseStorage implements IStorage {
             date_added: new Date()
           }
         ];
+        return sampleReels;
       }
       
       return reels;
@@ -279,18 +280,22 @@ export class DatabaseStorage implements IStorage {
   
   async getRandomAnimeReel(): Promise<AnimeReel | undefined> {
     try {
+      // First check for actual database entries
       const [reel] = await db.select().from(anime_reels).orderBy(sql`RANDOM()`).limit(1);
       
-      // If no reels in database, return a random sample
-      if (!reel) {
-        const sampleReels = await this.getAllAnimeReels(); // Uses our fallback data
-        if (sampleReels.length > 0) {
-          const randomIndex = Math.floor(Math.random() * sampleReels.length);
-          return sampleReels[randomIndex];
-        }
+      // If we found a reel in the database, return it
+      if (reel) {
+        return reel;
       }
       
-      return reel;
+      // Otherwise, get sample reels and return a random one
+      const sampleReels = await this.getAllAnimeReels(); // This uses our fallback data
+      if (sampleReels.length > 0) {
+        const randomIndex = Math.floor(Math.random() * sampleReels.length);
+        return sampleReels[randomIndex];
+      }
+      
+      return undefined;
     } catch (error) {
       console.error("Error fetching random anime reel:", error);
       return undefined;

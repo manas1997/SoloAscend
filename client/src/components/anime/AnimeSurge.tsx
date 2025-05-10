@@ -98,7 +98,7 @@ export function AnimeSurge({ onComplete }: AnimeSurgeProps) {
   };
   
   // Fetch a random reel
-  const { refetch: refetchRandom } = useQuery({
+  const { data: randomReel, refetch: refetchRandom } = useQuery<AnimeReel>({
     queryKey: ["/api/anime-reels/random"],
     enabled: false, // Don't fetch on component mount
   });
@@ -113,12 +113,27 @@ export function AnimeSurge({ onComplete }: AnimeSurgeProps) {
   // Load a random reel
   const loadRandomReel = async () => {
     try {
-      await refetchRandom();
-      // Random reel loaded successfully - could use this to set current reel
-      // For now, we'll just use the random index approach
-      setCurrentReelIndex(Math.floor(Math.random() * (availableReels.length || 1)));
+      const result = await refetchRandom();
+      
+      if (result.data) {
+        // Find if this reel already exists in our availableReels
+        const existingIndex = availableReels.findIndex(reel => reel.id === result.data?.id);
+        
+        if (existingIndex >= 0) {
+          // If it exists, just navigate to that index
+          setCurrentReelIndex(existingIndex);
+        } else {
+          // Otherwise, use random approach as fallback
+          setCurrentReelIndex(Math.floor(Math.random() * (availableReels.length || 1)));
+        }
+      } else {
+        // If no specific reel was returned, use random approach
+        setCurrentReelIndex(Math.floor(Math.random() * (availableReels.length || 1)));
+      }
     } catch (error) {
       console.error("Failed to load random reel:", error);
+      // Fallback to random selection
+      setCurrentReelIndex(Math.floor(Math.random() * (availableReels.length || 1)));
     }
   };
   
