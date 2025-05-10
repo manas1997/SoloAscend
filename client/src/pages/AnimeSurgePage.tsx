@@ -1,67 +1,86 @@
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/hooks/use-auth";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
-import { AnimeSurge } from "@/components/anime-surge/AnimeSurge";
-import { AnimeReelForm } from "@/components/anime-surge/AnimeReelForm";
+import { useEffect } from "react";
+import { useLocation } from "wouter";
+import { AnimeSurge } from "@/components/anime/AnimeSurge";
+import { Flame } from "lucide-react";
 
 export default function AnimeSurgePage() {
-  const [activeTab, setActiveTab] = useState<string>("gallery");
+  const { user, isAuthenticated } = useAuth();
+  const [, navigate] = useLocation();
+  
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isAuthenticated, navigate]);
+  
+  if (!isAuthenticated || !user) return null;
   
   return (
-    <div className="py-6 px-4 sm:px-6 lg:px-8">
-      {/* Page Header */}
-      <div className="md:flex md:items-center md:justify-between mb-8">
-        <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold leading-7 text-foreground sm:text-3xl sm:truncate font-poppins">
-            Anime Surge
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Anime-themed motivation reels to boost your energy and focus
+    <AppLayout>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Anime Surge</h1>
+          <p className="text-muted-foreground">
+            Get motivated with inspirational anime clips and quotes
           </p>
         </div>
         
-        <div className="mt-4 flex md:mt-0 md:ml-4 space-x-3">
-          <Button 
-            onClick={() => setActiveTab("add")}
-            className={activeTab !== "add" ? "bg-primary/80 hover:bg-primary" : ""}
-          >
-            <PlusCircle className="h-4 w-4 mr-2" />
-            Add New Reel
-          </Button>
-        </div>
-      </div>
-      
-      {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full md:w-auto grid-cols-2 mb-4">
-          <TabsTrigger value="gallery" className="text-sm md:text-base">
-            Reels Gallery
-          </TabsTrigger>
-          <TabsTrigger value="add" className="text-sm md:text-base">
-            Add New Reel
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="gallery" className="space-y-4">
-          <AnimeSurge />
-        </TabsContent>
-        
-        <TabsContent value="add" className="space-y-4">
-          <Card>
+        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+          <Card className="col-span-1">
             <CardHeader>
-              <CardTitle>Add Anime Reels</CardTitle>
-              <CardDescription>
-                Upload new anime-themed motivational reels with quotes and character information
-              </CardDescription>
+              <CardTitle>Motivational Anime</CardTitle>
+              <CardDescription>Watch motivational clips from famous anime series</CardDescription>
             </CardHeader>
-            <CardContent className="p-6">
-              <AnimeReelForm />
+            <CardContent>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Press the button below to launch a fullscreen motivational anime experience. 
+                Each clip comes with an inspirational quote to boost your determination.
+              </p>
+              <div className="flex justify-center">
+                <AnimeSurge />
+              </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+          
+          <Card className="col-span-1">
+            <CardHeader>
+              <CardTitle>About Anime Surge</CardTitle>
+              <CardDescription>How it helps your productivity journey</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Anime Surge is designed to provide quick motivation boosts through powerful scenes
+                  and quotes from anime that embody determination, perseverance, and growth.
+                </p>
+                
+                <div>
+                  <h3 className="font-medium mb-2 flex items-center">
+                    <Flame className="h-4 w-4 mr-2 text-primary" /> Featured Anime Series
+                  </h3>
+                  <ul className="list-disc list-inside text-sm text-muted-foreground pl-2 space-y-1">
+                    <li>Solo Leveling</li>
+                    <li>Naruto</li>
+                    <li>Blue Lock</li>
+                    <li>Black Clover</li>
+                    <li>Dragon Ball</li>
+                  </ul>
+                </div>
+                
+                <p className="text-sm text-muted-foreground">
+                  Use Anime Surge whenever you feel stuck, unmotivated, or need a quick burst of 
+                  energy to push through a challenging task. The motivational clips are selected 
+                  to inspire the same fighting spirit in your personal growth journey.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </AppLayout>
   );
 }

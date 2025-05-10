@@ -8,7 +8,8 @@ import {
   FolderKanban, 
   LogOut,
   Menu, 
-  X 
+  X,
+  Flame
 } from "lucide-react";
 import { useState } from "react";
 
@@ -24,6 +25,7 @@ export function Navigation() {
     { name: "Missions", href: "/missions", icon: Target },
     { name: "Progress", href: "/progress", icon: TrendingUp },
     { name: "Projects", href: "/projects", icon: FolderKanban },
+    { name: "Anime Surge", href: "/anime-surge", icon: Flame },
   ];
   
   const handleLogout = () => {

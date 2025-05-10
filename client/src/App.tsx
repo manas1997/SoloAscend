@@ -19,6 +19,7 @@ import DashboardPage from "./pages/DashboardPage";
 import MissionsPage from "./pages/MissionsPage";
 import ProgressPage from "./pages/ProgressPage";
 import ProjectsPage from "./pages/ProjectsPage";
+import AnimeSurgePage from "./pages/AnimeSurgePage";
 
 // We'll define the LoginPage component directly in this file for simplicity
 
@@ -246,6 +247,7 @@ function App() {
         <Route path="/missions" component={MissionsPage} />
         <Route path="/progress" component={ProgressPage} />
         <Route path="/projects" component={ProjectsPage} />
+        <Route path="/anime-surge" component={AnimeSurgePage} />
       </Switch>
     </AuthProvider>
   );
