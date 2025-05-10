@@ -686,8 +686,10 @@ export class MemStorage implements IStorage {
     if (date) {
       const dateString = date.toISOString().split('T')[0]; // Get YYYY-MM-DD format
       return tasks.filter(task => {
-        if (task.task_date instanceof Date) {
-          return task.task_date.toISOString().split('T')[0] === dateString;
+        // Handle potential null values and do the comparison
+        if (task.task_date) {
+          const taskDate = new Date(task.task_date);
+          return taskDate.toISOString().split('T')[0] === dateString;
         }
         return false;
       });
@@ -698,7 +700,8 @@ export class MemStorage implements IStorage {
   
   async createUserTask(userTaskData: InsertUserTask): Promise<UserTask> {
     const id = this.userTaskIdCounter++;
-    const task_date = new Date();
+    const now = new Date();
+    const task_date = now.toISOString();
     const userTask: UserTask = { 
       ...userTaskData, 
       id, 
