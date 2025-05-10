@@ -64,16 +64,12 @@ export function AnimeSurge({ onComplete }: AnimeSurgeProps) {
   // Fetch anime reels from the API
   const { data: reels, isLoading, error } = useQuery<AnimeReel[]>({
     queryKey: ["/api/anime-reels"],
-    // If the API fails, use sample data for demo purposes
-    onError: (error) => {
-      console.error("Error fetching anime reels:", error);
-    },
     enabled: open, // Only fetch when dialog is opened
   });
   
   // Use sample data for now, replace with actual data when API is ready
-  const availableReels = reels || SAMPLE_REELS;
-  const currentReel = availableReels[currentReelIndex];
+  const availableReels: (AnimeReel | typeof SAMPLE_REELS[0])[] = reels || SAMPLE_REELS;
+  const currentReel = availableReels[currentReelIndex] as (AnimeReel | typeof SAMPLE_REELS[0]);
   
   // Toggle mute state
   const toggleMute = () => {
@@ -86,21 +82,22 @@ export function AnimeSurge({ onComplete }: AnimeSurgeProps) {
   // Navigate to previous reel
   const prevReel = () => {
     setCurrentReelIndex((prev) => 
-      prev === 0 ? availableReels.length - 1 : prev - 1
+      prev === 0 ? (availableReels.length || 1) - 1 : prev - 1
     );
   };
   
   // Navigate to next reel
   const nextReel = () => {
+    const length = availableReels?.length || 1;
     setCurrentReelIndex((prev) => 
-      prev === availableReels.length - 1 ? 0 : prev + 1
+      prev === length - 1 ? 0 : prev + 1
     );
   };
   
   // Show the Anime Surge dialog
   const showAnimeSurge = () => {
     setOpen(true);
-    setCurrentReelIndex(Math.floor(Math.random() * SAMPLE_REELS.length));
+    setCurrentReelIndex(Math.floor(Math.random() * (SAMPLE_REELS.length || 1)));
     setIsMuted(true);
   };
   

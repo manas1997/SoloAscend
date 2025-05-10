@@ -2,10 +2,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Target, Clock, TrendingUp, Zap } from "lucide-react";
+import { Target, Clock, TrendingUp, Zap, Flame } from "lucide-react";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { MotivationMeteor } from "@/components/motivation/MotivationMeteor";
+import { AnimeSurge } from "@/components/anime/AnimeSurge";
 
 export default function DashboardPage() {
   const { user, isAuthenticated } = useAuth();
@@ -120,11 +121,20 @@ export default function DashboardPage() {
               <CardTitle>Motivation Boost</CardTitle>
               <CardDescription>Need a quick energy boost?</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="mb-4 text-sm text-muted-foreground">
-                Sometimes we all need a little extra motivation. Get a quick dose of inspiration.
-              </p>
-              <MotivationMeteor />
+            <CardContent className="space-y-4">
+              <div>
+                <p className="mb-2 text-sm text-muted-foreground">
+                  Get a dose of inspirational anime quotes and micro-challenges.
+                </p>
+                <MotivationMeteor />
+              </div>
+              
+              <div>
+                <p className="mb-2 text-sm text-muted-foreground">
+                  Watch motivational anime video clips with inspiring quotes.
+                </p>
+                <AnimeSurge />
+              </div>
             </CardContent>
           </Card>
         </div>
